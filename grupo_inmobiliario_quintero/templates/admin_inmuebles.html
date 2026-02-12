@@ -1,0 +1,66 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+
+    {% if request.endpoint == 'admin_inmuebles' %}
+        <span>›</span>
+        <span>Inmuebles</span>
+    {% elif request.endpoint == 'nuevo_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Nuevo</span>
+    {% elif request.endpoint == 'editar_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Editar</span>
+    {% endif %}
+</nav>
+
+
+<h2>📋 Inmuebles registrados</h2>
+
+<a href="{{ url_for('panel_admin') }}" class="btn-secondary">
+    ← Volver al panel
+</a>
+
+<div class="admin-list">
+
+    {% for i in inmuebles %}
+    <div class="admin-item">
+
+        <div class="admin-thumb">
+            {% if i.imagen_url %}
+                <img src="{{ i.imagen_url }}" alt="img">
+            {% else %}
+                —
+            {% endif %}
+        </div>
+
+        <div class="admin-info">
+            <h4>{{ i.titulo }}</h4>
+            <p class="muted">
+                {{ i.tipo_negocio }} · {{ i.tipo }} · ${{ "{:,.0f}".format(i.precio) }}
+            </p>
+        </div>
+
+        <div class="admin-actions">
+            <a href="{{ url_for('editar_inmueble', id=i.id) }}" class="btn-edit">✏️</a>
+
+            <form method="POST"
+                  action="{{ url_for('eliminar_inmueble', id=i.id) }}"
+                  onsubmit="return confirm('¿Eliminar inmueble?');">
+                <button class="btn-delete">🗑️</button>
+            </form>
+        </div>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+
+{% endblock %}
+

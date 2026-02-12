@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metropolitan Inmobiliaria</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header class="main-header">
+
+    <div class="header-container">
+
+        <!-- LOGO -->
+        <div class="logo-area">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" class="logo">
+            <span class="brand">Metropolitan</span>
+        </div>
+
+        <!-- NAV -->
+        <nav class="main-nav">
+            <a href="{{ url_for('home') }}">Inicio</a>
+            <a href="{{ url_for('mostrar_inmuebles') }}">Inmuebles</a>
+        </nav>
+
+        <!-- CONTROLES -->
+        <div class="header-controls">
+
+            <button id="darkToggle" class="dark-btn">🌙</button>
+
+            <a href="https://wa.me/573132552214"
+               target="_blank"
+               class="whatsapp-btn">
+               💬
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="main-container">
+    {% block content %}{% endblock %}
+</main>
+
+
+<footer class="main-footer">
+    © {{ 2026 }} Metropolitan Inmobiliaria
+</footer>
+
+
+<script>
+const toggle = document.getElementById("darkToggle");
+
+toggle.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkmode", document.body.classList.contains("dark-mode"));
+};
+
+if(localStorage.getItem("darkmode") === "true"){
+    document.body.classList.add("dark-mode");
+}
+</script>
+
+</body>
+</html>

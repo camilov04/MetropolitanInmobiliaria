@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= HERO ================= -->
+
+<section class="hero">
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+
+        <span class="hero-tag">
+            Metropolitan Inmobiliaria
+        </span>
+
+        <h1>
+            Espacios que reflejan tu estilo de vida
+        </h1>
+
+        <p>
+            Propiedades exclusivas · Ubicaciones premium · Asesoría profesional
+        </p>
+
+        <a href="{{ url_for('mostrar_inmuebles') }}" class="hero-btn">
+            Explorar inmuebles
+        </a>
+
+    </div>
+
+</section>
+
+<!-- ================= DESTACADOS ================= -->
+{% if destacados %}
+
+<section class="destacados">
+
+    <h2 class="section-title">Propiedades destacadas</h2>
+
+    <div class="destacados-grid">
+
+        {% for i in destacados %}
+        <a href="{{ url_for('detalle_inmueble', inmueble_id=i.id) }}" class="destacado-card">
+
+            <img src="{{ i.imagen_url }}" alt="">
+
+            <div class="destacado-info">
+                <h3>{{ i.titulo }}</h3>
+                <p>{{ i.tipo_negocio }} · {{ i.tipo }}</p>
+                <span>${{ "{:,.0f}".format(i.precio) }}</span>
+            </div>
+
+        </a>
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- ================= BUSCADOR ================= -->
+
+<section class="home-search">
+
+<form action="{{ url_for('mostrar_inmuebles') }}" method="GET" class="search-form">
+
+    <select name="tipo_negocio">
+        <option value="">Venta / Arriendo</option>
+        <option value="Venta">Venta</option>
+        <option value="Arriendo">Arriendo</option>
+    </select>
+
+    <select name="tipo">
+        <option value="">Tipo</option>
+        <option value="Casa">Casa</option>
+        <option value="Apartamento">Apartamento</option>
+        <option value="Oficina">Oficina</option>
+        <option value="Local">Local</option>
+        <option value="Lote">Lote</option>
+    </select>
+
+    <input type="text" name="municipio" placeholder="Municipio">
+
+    <button type="submit">Buscar</button>
+
+</form>
+
+</section>
+
+
+<!-- ================= BENEFICIOS ================= -->
+
+<section class="beneficios">
+
+    <div class="beneficio">
+        <h3>Propiedades verificadas</h3>
+        <p>Solo publicamos inmuebles reales y validados.</p>
+    </div>
+
+    <div class="beneficio">
+        <h3>Acompañamiento legal</h3>
+        <p>Te asesoramos durante todo el proceso.</p>
+    </div>
+
+    <div class="beneficio">
+        <h3>Ubicaciones premium</h3>
+        <p>Trabajamos en las zonas con mayor valorización.</p>
+    </div>
+
+</section>
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+    <h2 class="page-title">Inmuebles disponibles</h2>
+
+    <form class="search-form" method="GET">
+        <input name="municipio" placeholder="Municipio">
+        <select name="tipo">
+            <option value="">Tipo</option>
+            <option>Casa</option>
+            <option>Apartamento</option>
+            <option>Oficina</option>
+            <option>Lote</option>
+        </select>
+        <select name="tipo_negocio">
+            <option value="">Venta / Arriendo</option>
+            <option value="Venta" {% if request.args.get('tipo_negocio') == 'Venta' %}selected{% endif %}>Venta</option>
+            <option value="Arriendo" {% if request.args.get('tipo_negocio') == 'Arriendo' %}selected{% endif %}>Arriendo</option>
+        </select>
+        <button>Filtrar</button>
+    </form>
+
+    <div class="listado">
+        {% for i in inmuebles %}
+        <a href="{{ url_for('detalle_inmueble', inmueble_id=i.id) }}" class="inmueble-link">
+            <div class="inmueble-card">
+                <img class="imagen-inmueble" src="{{ i.imagen_url }}">
+                <div class="card-body">
+                    <h3>{{ i.titulo }}</h3>
+                    <div class="datos-clave">
+    <div class="dato precio">
+        ${{ "{:,.0f}".format(i.precio) }}
+    </div>
+
+    {% if i.habitaciones %}
+    <div class="dato">🛏 {{ i.habitaciones }}</div>
+    {% endif %}
+
+    {% if i.banos %}
+    <div class="dato">🚿 {{ i.banos }}</div>
+    {% endif %}
+
+    {% if i.parqueadero %}
+    <div class="dato">🚗 Parqueadero</div>
+    {% endif %}
+</div>
+
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

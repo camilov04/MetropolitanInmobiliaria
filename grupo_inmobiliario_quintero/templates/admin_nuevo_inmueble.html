@@ -1,0 +1,172 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+
+    {% if request.endpoint == 'admin_inmuebles' %}
+        <span>›</span>
+        <span>Inmuebles</span>
+    {% elif request.endpoint == 'nuevo_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Nuevo</span>
+    {% elif request.endpoint == 'editar_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Editar</span>
+    {% endif %}
+</nav>
+
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <h2>➕ Nuevo inmueble</h2>
+
+        <a href="{{ url_for('admin_inmuebles') }}" class="btn-secondary">
+            ← Volver a inmuebles
+        </a>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('agregar_inmueble') }}"
+          class="admin-form"
+          id="formInmueble">
+
+        <!-- TÍTULO -->
+        <div class="form-group">
+            <label>Título</label>
+            <input type="text" name="titulo" required>
+        </div>
+
+        <!-- TIPO DE NEGOCIO -->
+        <div class="form-group">
+            <label>Tipo de negocio</label>
+            <select name="tipo_negocio" required>
+                <option value="">Seleccionar</option>
+                <option value="Venta">Venta</option>
+                <option value="Arriendo">Arriendo</option>
+            </select>
+        </div>
+
+        <!-- DESCRIPCIÓN -->
+        <div class="form-group full-width">
+            <label>Descripción</label>
+            <textarea name="descripcion" rows="5" required></textarea>
+        </div>
+
+        <!-- TIPO DE INMUEBLE -->
+        <div class="form-group">
+            <label>Tipo de inmueble</label>
+            <select name="tipo" id="tipo" required>
+                <option value="">Seleccionar</option>
+                <option value="Casa">Casa</option>
+                <option value="Apartamento">Apartamento</option>
+                <option value="Oficina">Oficina</option>
+                <option value="Local">Local</option>
+                <option value="Lote">Lote</option>
+            </select>
+        </div>
+
+        <!-- MUNICIPIO -->
+        <div class="form-group">
+            <label>Municipio</label>
+            <input type="text" name="municipio" required>
+        </div>
+
+        <!-- CAMPOS DINÁMICOS -->
+        <div class="form-group campo-habitaciones">
+            <label>Habitaciones</label>
+            <input type="number" name="habitaciones" min="0">
+        </div>
+
+        <div class="form-group campo-banos">
+            <label>Baños</label>
+            <input type="number" name="banos" min="0">
+        </div>
+
+        <div class="form-group campo-parqueadero">
+            <label>Parqueadero</label>
+            <select name="parqueadero">
+                <option value="0">No</option>
+                <option value="1">Sí</option>
+            </select>
+        </div>
+
+        <!-- PRECIO -->
+        <div class="form-group">
+            <label>Precio</label>
+            <input type="number" name="precio" required>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="destacado">
+                Marcar como destacado
+            </label>
+        </div>
+
+
+        <!-- IMAGEN -->
+        <div class="form-group full-width">
+            <label>Imagen (URL)</label>
+            <input type="text" name="imagen_url">
+        </div>
+
+        <!-- BOTÓN -->
+        <div class="form-group full-width">
+            <button type="submit" class="btn-primary">
+                Guardar inmueble
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+<!-- ======================
+     JS CAMPOS DINÁMICOS
+====================== -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const tipo = document.getElementById("tipo");
+
+    const campoHabitaciones = document.querySelector(".campo-habitaciones");
+    const campoBanos = document.querySelector(".campo-banos");
+    const campoParqueadero = document.querySelector(".campo-parqueadero");
+
+    function ocultarTodo() {
+        campoHabitaciones.style.display = "none";
+        campoBanos.style.display = "none";
+        campoParqueadero.style.display = "none";
+    }
+
+    function actualizarCampos() {
+        ocultarTodo();
+
+        if (tipo.value === "Casa" || tipo.value === "Apartamento") {
+            campoHabitaciones.style.display = "flex";
+            campoBanos.style.display = "flex";
+            campoParqueadero.style.display = "flex";
+        }
+
+        if (tipo.value === "Oficina") {
+            campoBanos.style.display = "flex";
+            campoParqueadero.style.display = "flex";
+        }
+
+        if (tipo.value === "Local") {
+            campoBanos.style.display = "flex";
+        }
+    }
+
+    tipo.addEventListener("change", actualizarCampos);
+    actualizarCampos();
+});
+</script>
+
+{% endblock %}

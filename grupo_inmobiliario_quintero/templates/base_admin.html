@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Grupo Inmobiliario Quintero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS SOLO ADMIN -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body id="body" class="{% if session.get('dark_mode') %}dark-mode{% endif %}">
+
+<header class="admin-header">
+    <div class="admin-header-left">
+        <h1>Panel Admin</h1>
+    </div>
+
+    <nav class="admin-nav">
+        <a href="{{ url_for('panel_admin') }}">🏠 Dashboard</a>
+        <a href="{{ url_for('admin_inmuebles') }}">📋 Inmuebles</a>
+        <a href="{{ url_for('home') }}" target="_blank">🌐 Ver sitio</a>
+        <a href="{{ url_for('logout') }}" class="btn-danger">Salir</a>
+    </nav>
+
+</header>
+
+<main class="admin-main">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Toggle Dark Mode -->
+<button id="darkToggle" class="admin-dark-toggle">🌙</button>
+
+<script>
+const body = document.getElementById("body");
+const toggle = document.getElementById("darkToggle");
+
+// cargar preferencia
+if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark-mode");
+    toggle.textContent = "☀️";
+}
+
+toggle.addEventListener("click", () => {
+    body.classList.toggle("dark-mode");
+    localStorage.setItem(
+        "theme",
+        body.classList.contains("dark-mode") ? "dark" : "light"
+    );
+    toggle.textContent = body.classList.contains("dark-mode") ? "☀️" : "🌙";
+});
+</script>
+
+</body>
+</html>

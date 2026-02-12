@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="detalle-inmueble">
+
+<!-- ===== CARRUSEL ===== -->
+
+<div class="carousel">
+
+```
+<div class="carousel-main">
+
+    <button class="carousel-btn prev">‹</button>
+
+    <div class="carousel-track">
+        {% for img in imagenes %}
+            <img src="{{ img }}" class="carousel-slide">
+        {% endfor %}
+    </div>
+
+    <button class="carousel-btn next">›</button>
+
+</div>
+
+<!-- DOTS -->
+<div class="carousel-dots">
+    {% for img in imagenes %}
+        <span class="dot"></span>
+    {% endfor %}
+</div>
+
+<!-- MINIATURAS -->
+<div class="carousel-thumbs">
+    {% for img in imagenes %}
+        <img src="{{ img }}" class="thumb">
+    {% endfor %}
+</div>
+```
+
+</div>
+
+<!-- ===== INFO ===== -->
+
+<h2>{{ inmueble.titulo }}</h2>
+<p class="ubicacion">{{ inmueble.municipio }}</p>
+
+<div class="datos-clave">
+
+```
+<div class="dato precio">
+    {{ inmueble.tipo_negocio }} · ${{ "{:,.0f}".format(inmueble.precio) }}
+</div>
+
+<div class="dato">{{ inmueble.tipo }}</div>
+
+{% if inmueble.habitaciones %}
+<div class="dato">🛏 {{ inmueble.habitaciones }}</div>
+{% endif %}
+
+{% if inmueble.banos %}
+<div class="dato">🚿 {{ inmueble.banos }}</div>
+{% endif %}
+
+{% if inmueble.parqueadero %}
+<div class="dato">🚗 Parqueadero</div>
+{% endif %}
+```
+
+</div>
+
+<hr>
+
+<div class="detalle-descripcion">
+    <h4>Descripción</h4>
+    <p>{{ inmueble.descripcion }}</p>
+</div>
+
+</div>
+
+<!-- ===== FULLSCREEN ===== -->
+
+<div class="fullscreen-viewer" id="fullscreenViewer">
+
+```
+<button class="fs-close">✕</button>
+<button class="fs-arrow fs-prev">‹</button>
+
+<div class="fs-container">
+    <div class="fs-track">
+        {% for img in imagenes %}
+            <img src="{{ img }}" class="fs-slide">
+        {% endfor %}
+    </div>
+</div>
+
+<button class="fs-arrow fs-next">›</button>
+```
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const track = document.querySelector(".carousel-track");
+    const slides = Array.from(track.children);
+
+    const nextBtn = document.querySelector(".carousel-btn.next");
+    const prevBtn = document.querySelector(".carousel-btn.prev");
+
+    const dots = document.querySelectorAll(".dot");
+    const thumbs = document.querySelectorAll(".thumb");
+
+    let index = 0;
+
+    function updateCarousel() {
+
+        track.style.transform = `translateX(-${index * 100}%)`;
+
+        dots.forEach((d, i) => d.classList.toggle("active", i === index));
+        thumbs.forEach((t, i) => t.classList.toggle("active", i === index));
+    }
+
+    nextBtn.onclick = () => {
+        index = (index + 1) % slides.length;
+        updateCarousel();
+    };
+
+    prevBtn.onclick = () => {
+        index = index === 0 ? slides.length - 1 : index - 1;
+        updateCarousel();
+    };
+
+    dots.forEach((dot, i) => {
+        dot.onclick = () => {
+            index = i;
+            updateCarousel();
+        };
+    });
+
+    thumbs.forEach((thumb, i) => {
+        thumb.onclick = () => {
+            index = i;
+            updateCarousel();
+        };
+    });
+
+    /* SWIPE */
+    let startX = 0;
+
+    track.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+    });
+
+    track.addEventListener("touchend", e => {
+        let diff = startX - e.changedTouches[0].clientX;
+
+        if (diff > 50) nextBtn.click();
+        if (diff < -50) prevBtn.click();
+    });
+
+    updateCarousel();
+
+    /* ===== FULLSCREEN ===== */
+
+    const viewer = document.getElementById("fullscreenViewer");
+    const fsTrack = document.querySelector(".fs-track");
+    const fsSlides = document.querySelectorAll(".fs-slide");
+
+    const fsNext = document.querySelector(".fs-next");
+    const fsPrev = document.querySelector(".fs-prev");
+    const fsClose = document.querySelector(".fs-close");
+
+    let fsIndex = 0;
+
+    slides.forEach((slide, i) => {
+        slide.addEventListener("click", () => {
+            viewer.classList.add("active");
+            fsIndex = index;
+            updateFS();
+        });
+    });
+
+    function updateFS() {
+        fsTrack.style.transform = `translateX(-${fsIndex * 100}%)`;
+    }
+
+    fsNext.onclick = () => {
+        fsIndex = (fsIndex + 1) % fsSlides.length;
+        updateFS();
+    };
+
+    fsPrev.onclick = () => {
+        fsIndex = fsIndex === 0 ? fsSlides.length - 1 : fsIndex - 1;
+        updateFS();
+    };
+
+    fsClose.onclick = () => viewer.classList.remove("active");
+
+    viewer.addEventListener("click", e => {
+        if (e.target === viewer) viewer.classList.remove("active");
+    });
+
+});
+</script>
+
+{% endblock %}

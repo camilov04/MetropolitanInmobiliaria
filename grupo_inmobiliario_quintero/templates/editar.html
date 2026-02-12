@@ -1,0 +1,165 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+
+    {% if request.endpoint == 'admin_inmuebles' %}
+        <span>›</span>
+        <span>Inmuebles</span>
+    {% elif request.endpoint == 'nuevo_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Nuevo</span>
+    {% elif request.endpoint == 'editar_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Editar</span>
+    {% endif %}
+</nav>
+
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <h2>Editar inmueble</h2>
+        <a href="{{ url_for('panel_admin') }}" class="logout-link">← Volver</a>
+    </div>
+
+    <div class="admin-card">
+        <h3>Actualizar información</h3>
+
+        <form method="POST"
+              action="{{ url_for('editar_inmueble', id=inmueble.id) }}"
+              class="admin-form"
+              id="editarForm">
+
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" name="titulo" value="{{ inmueble.titulo }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de negocio</label>
+                <select name="tipo_negocio" required>
+                    <option value="Venta"
+                        {% if inmueble.tipo_negocio == "Venta" %}selected{% endif %}>
+                        Venta
+                    </option>
+                    <option value="Arriendo"
+                        {% if inmueble.tipo_negocio == "Arriendo" %}selected{% endif %}>
+                        Arriendo
+                    </option>
+                </select>
+            </div>
+
+
+            <div class="form-group full-width">
+                <label>Información detallada</label>
+                <textarea name="descripcion" required>{{ inmueble.descripcion }}</textarea>
+            </div>
+
+
+            <div class="form-group">
+                <label>Tipo</label>
+                <select name="tipo" id="tipo" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Casa" {% if inmueble.tipo == "Casa" %}selected{% endif %}>Casa</option>
+                    <option value="Apartamento" {% if inmueble.tipo == "Apartamento" %}selected{% endif %}>Apartamento</option>
+                    <option value="Oficina" {% if inmueble.tipo == "Oficina" %}selected{% endif %}>Oficina</option>
+                    <option value="Local" {% if inmueble.tipo == "Local" %}selected{% endif %}>Local</option>
+                    <option value="Lote" {% if inmueble.tipo == "Lote" %}selected{% endif %}>Lote</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Municipio</label>
+                <input type="text" name="municipio" value="{{ inmueble.municipio }}" required>
+            </div>
+
+            <!-- CAMPOS DINÁMICOS -->
+            <div class="form-group campo-habitaciones">
+                <label>Habitaciones</label>
+                <input type="number" name="habitaciones" value="{{ inmueble.habitaciones }}">
+            </div>
+
+            <div class="form-group campo-banos">
+                <label>Baños</label>
+                <input type="number" name="banos" value="{{ inmueble.banos }}">
+            </div>
+
+            <div class="form-group campo-parqueadero">
+                <label>Parqueadero</label>
+                <select name="parqueadero">
+                    <option value="0" {% if not inmueble.parqueadero %}selected{% endif %}>No</option>
+                    <option value="1" {% if inmueble.parqueadero %}selected{% endif %}>Sí</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Precio</label>
+                <input type="number" name="precio" value="{{ inmueble.precio }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="destacado"
+                    {% if inmueble.destacado %}checked{% endif %}>
+                    Marcar como destacado
+                </label>
+            </div>
+
+
+            <div class="form-group full-width">
+                <label>Imagen URL</label>
+                <input type="text" name="imagen_url" value="{{ inmueble.imagen_url }}">
+            </div>
+
+            <div class="form-group full-width">
+                <button type="submit">Guardar cambios</button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<!-- SCRIPT CAMPOS DINÁMICOS -->
+<script>
+const tipo = document.getElementById("tipo");
+
+const campoHabitaciones = document.querySelector(".campo-habitaciones");
+const campoBanos = document.querySelector(".campo-banos");
+const campoParqueadero = document.querySelector(".campo-parqueadero");
+
+function ocultarTodo() {
+    campoHabitaciones.style.display = "none";
+    campoBanos.style.display = "none";
+    campoParqueadero.style.display = "none";
+}
+
+function actualizarCampos() {
+    ocultarTodo();
+
+    if (tipo.value === "Casa" || tipo.value === "Apartamento") {
+        campoHabitaciones.style.display = "flex";
+        campoBanos.style.display = "flex";
+        campoParqueadero.style.display = "flex";
+    }
+
+    if (tipo.value === "Oficina") {
+        campoBanos.style.display = "flex";
+        campoParqueadero.style.display = "flex";
+    }
+
+    if (tipo.value === "Local") {
+        campoBanos.style.display = "flex";
+    }
+}
+
+tipo.addEventListener("change", actualizarCampos);
+document.addEventListener("DOMContentLoaded", actualizarCampos);
+</script>
+
+{% endblock %}
