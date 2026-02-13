@@ -761,10 +761,13 @@ body{
     border: 2px solid #d4af37;
     box-shadow: 0 0 12px rgba(212,175,55,0.4);
 }
+
+/*fullscreen*/
 .fullscreen-viewer {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.95);
+    background: rgba(0,0,0,0.97);
+    backdrop-filter: blur(6px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -777,7 +780,7 @@ body{
 
 .fs-container {
     width: 90%;
-    max-width: 1100px;
+    max-width: 1200px;
     overflow: hidden;
 }
 
@@ -786,11 +789,20 @@ body{
     transition: transform 0.4s ease;
 }
 
-.fs-slide {
+.fs-slide-wrapper {
     width: 100%;
     flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fs-slide {
+    max-width: 100%;
     max-height: 90vh;
     object-fit: contain;
+    transition: transform 0.2s ease;
+    cursor: grab;
 }
 
 /* Flechas */
@@ -798,26 +810,43 @@ body{
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 40px;
-    color: white;
+    font-size: 42px;
     background: rgba(0,0,0,0.4);
     border: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
     cursor: pointer;
-    padding: 10px 18px;
-    border-radius: 8px;
 }
 
-.fs-prev { left: 20px; }
-.fs-next { right: 20px; }
+.fs-prev { left: 30px; }
+.fs-next { right: 30px; }
 
-/* Cerrar */
 .fs-close {
     position: absolute;
-    top: 20px;
-    right: 25px;
-    font-size: 32px;
+    top: 25px;
+    right: 35px;
+    font-size: 34px;
     background: none;
     border: none;
     color: white;
     cursor: pointer;
+}
+.fs-counter {
+    position: absolute;
+    bottom: 30px;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.fullscreen-viewer {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.fullscreen-viewer.active {
+    display: flex;
+    opacity: 1;
 }

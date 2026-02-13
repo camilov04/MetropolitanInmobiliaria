@@ -90,15 +90,24 @@
 
     <div class="fs-container">
         <div class="fs-track">
+
             {% for img in imagenes %}
-                <img src="{{ img }}" class="fs-slide">
+                <div class="fs-slide-wrapper">
+                    <img src="{{ img }}" class="fs-slide">
+                </div>
             {% endfor %}
+
         </div>
     </div>
 
     <button class="fs-arrow fs-next">›</button>
+    <div class="fs-counter">
+        <span id="fsCurrent">1</span> / <span id="fsTotal">{{ imagenes|length }}</span>
+    </div>
+
 
 </div>
+
 
 
 <script>
@@ -170,21 +179,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const slides = document.querySelectorAll(".carousel-slide");
 
     let fsIndex = 0;
-    let index = 0;
+    let scale = 1;
 
-    /* ABRIR FULLSCREEN */
+    /* ===== ABRIR FULLSCREEN ===== */
     slides.forEach((slide, i) => {
         slide.addEventListener("click", () => {
             viewer.classList.add("active");
             fsIndex = i;
+            scale = 1;
             updateFS();
+            
         });
     });
 
     function updateFS() {
-        fsTrack.style.transform = `translateX(-${fsIndex * 100}%)`;
+    fsTrack.style.transform = `translateX(-${fsIndex * 100}%)`;
+
+    document.getElementById("fsCurrent").textContent = fsIndex + 1;
+
+    fsSlides.forEach(img => img.style.transform = "scale(1)");
+    scale = 1;
     }
 
+    /* ===== FLECHAS ===== */
     fsNext.onclick = () => {
         fsIndex = (fsIndex + 1) % fsSlides.length;
         updateFS();
@@ -195,19 +212,77 @@ document.addEventListener("DOMContentLoaded", () => {
         updateFS();
     };
 
-    fsClose.onclick = () => {
-        viewer.classList.remove("active");
-    };
-
+    /* ===== CERRAR ===== */
+    fsClose.onclick = () => viewer.classList.remove("active");
     viewer.onclick = (e) => {
-        if (e.target === viewer) {
-            viewer.classList.remove("active");
-        }
+        if (e.target === viewer) viewer.classList.remove("active");
+        
     };
+    
+
+    /* ===== SWIPE MOVIL ===== */
+    let startX = 0;
+
+    viewer.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+    });
+
+    viewer.addEventListener("touchend", e => {
+        let diff = startX - e.changedTouches[0].clientX;
+
+        if (diff > 50) fsNext.click();
+        if (diff < -50) fsPrev.click();
+    });
+
+    /* ===== ZOOM RUEDA MOUSE ===== */
+    fsSlides.forEach(img => {
+
+        img.addEventListener("wheel", e => {
+
+            e.preventDefault();
+
+            scale += e.deltaY * -0.001;
+            scale = Math.min(Math.max(1, scale), 3);
+
+            img.style.transform = `scale(${scale})`;
+
+        });
+
+    });
+
+    /* ===== PINCH ZOOM MOVIL ===== */
+    fsSlides.forEach(img => {
+
+        let initialDistance = null;
+
+        img.addEventListener("touchmove", e => {
+
+            if (e.touches.length === 2) {
+
+                let dx = e.touches[0].clientX - e.touches[1].clientX;
+                let dy = e.touches[0].clientY - e.touches[1].clientY;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (!initialDistance) {
+                    initialDistance = distance;
+                } else {
+
+                    scale = distance / initialDistance;
+                    scale = Math.min(Math.max(1, scale), 3);
+
+                    img.style.transform = `scale(${scale})`;
+                }
+            }
+
+        });
+
+        img.addEventListener("touchend", () => {
+            initialDistance = null;
+        });
+
+    });
 
 });
 </script>
-
-
 
 {% endblock %}
