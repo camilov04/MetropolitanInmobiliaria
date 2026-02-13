@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="promo-container">
+
+    <h2>Promocionar inmueble</h2>
+
+    <p class="promo-title">
+        {{ inmueble.titulo }}
+    </p>
+
+    <div class="planes">
+
+        <!-- DESTACADO -->
+        <div class="plan-card">
+
+            <h3>⭐ Destacado</h3>
+            <p class="plan-precio">$30.000 / 30 días</p>
+
+            <ul>
+                <li>✔ Aparece antes en listados</li>
+                <li>✔ Badge azul</li>
+                <li>✔ Mayor visibilidad</li>
+            </ul>
+
+            <a href="#" class="btn-plan">Seleccionar</a>
+
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="plan-card premium">
+
+            <h3>👑 Premium</h3>
+            <p class="plan-precio">$60.000 / 30 días</p>
+
+            <ul>
+                <li>✔ Badge dorado</li>
+                <li>✔ Máxima prioridad</li>
+                <li>✔ Futuro carrusel HOME</li>
+            </ul>
+
+            <a href="#" class="btn-plan premium-btn">Seleccionar</a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

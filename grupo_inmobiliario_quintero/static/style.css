@@ -473,3 +473,351 @@ body{
     color: #caa85c;
     font-weight: bold;
 }
+.badge-premium {
+    background: linear-gradient(45deg, gold, #b48a00);
+    color: black;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-destacado {
+    background: #1e88e5;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.promo-box {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.btn-promocionar {
+    display: inline-block;
+    padding: 14px 24px;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #cfa93b, #8f6c00);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+.btn-promocionar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.promo-container {
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+}
+
+.planes {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.plan-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 25px;
+    width: 280px;
+    border: 1px solid var(--border);
+}
+
+.plan-card.premium {
+    border: 2px solid gold;
+}
+
+.plan-precio {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 15px 0;
+}
+
+.btn-plan {
+    display: block;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #1e88e5;
+    color: white;
+    text-decoration: none;
+}
+
+.premium-btn {
+    background: linear-gradient(45deg, gold, #8f6c00);
+    color: black;
+}
+.badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+}
+
+.badge.destacado {
+    background: #1e88e5;
+}
+
+.badge.premium {
+    background: linear-gradient(45deg, gold, #d4af37);
+    color: black;
+}
+/* ===============================
+   PLAN VISUAL DETALLE INMUEBLE
+================================ */
+
+/* Base contenedor */
+.detalle-inmueble {
+    padding: 20px;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+/* ---------- BASICO ---------- */
+
+.detalle-inmueble.plan-basico {
+    border: 2px solid #e0e0e0;
+}
+
+.dark-mode .detalle-inmueble.plan-basico {
+    border: 2px solid #333;
+}
+
+/* ---------- PREMIUM ---------- */
+
+.detalle-inmueble.plan-premium {
+    border: 2px solid #1e88e5;
+    box-shadow: 0 0 12px rgba(30,136,229,0.3);
+}
+
+.dark-mode .detalle-inmueble.plan-premium {
+    border: 2px solid #64b5f6;
+    box-shadow: 0 0 18px rgba(100,181,246,0.4);
+}
+
+/* ---------- DESTACADO ---------- */
+
+.detalle-inmueble.plan-destacado {
+    border: 2px solid #d4af37;
+    box-shadow: 0 0 18px rgba(212,175,55,0.45);
+}
+
+/* Glow luxury */
+.detalle-inmueble.plan-destacado:hover {
+    box-shadow: 0 0 30px rgba(212,175,55,0.8);
+}
+
+/* Dark luxury */
+.dark-mode .detalle-inmueble.plan-destacado {
+    border: 2px solid #c9a227;
+    box-shadow: 0 0 20px rgba(201,162,39,0.5);
+}
+
+/* ---------- SIN PLAN ---------- */
+
+.detalle-inmueble.plan-none {
+    border: 2px solid transparent;
+}
+
+/* ===============================
+   BADGE PLAN
+================================ */
+
+.detalle-plan-badge {
+    margin-left: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* BASICO */
+.badge-basico {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* PREMIUM */
+.badge-premium {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* DESTACADO */
+.badge-destacado {
+    background: linear-gradient(135deg, #d4af37, #b8860b);
+    color: white;
+}
+
+/* DARK MODE BADGES */
+
+.dark-mode .badge-basico {
+    background: #1b3b2a;
+    color: #6ee7a8;
+}
+
+.dark-mode .badge-premium {
+    background: #0f2c4d;
+    color: #6ec6ff;
+}
+
+.dark-mode .badge-destacado {
+    background: linear-gradient(135deg, #c9a227, #a67c00);
+}
+/* ===== CAROUSEL CLEAN ===== */
+
+.carousel {
+    max-width: 750px;
+    margin: auto;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* viewport evita que se vean dos imágenes */
+.carousel-viewport {
+    overflow: hidden;
+    width: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 420px;
+    object-fit: cover;
+}
+
+/* Flechas */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,.5);
+    border: none;
+    color: white;
+    font-size: 28px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.carousel-main {
+    position: relative;
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+/* DOTS */
+.carousel-dots {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #777;
+    border-radius: 50%;
+    margin: 0 4px;
+    cursor: pointer;
+}
+
+.dot.active {
+    background: gold;
+}
+
+.carousel-slide:hover {
+    transform: scale(1.02);
+    transition: 0.4s;
+}
+
+
+.plan-premium .carousel {
+    border: 2px solid #1e88e5;
+}
+
+.plan-destacado .carousel {
+    border: 2px solid #d4af37;
+    box-shadow: 0 0 12px rgba(212,175,55,0.4);
+}
+.fullscreen-viewer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.fullscreen-viewer.active {
+    display: flex;
+}
+
+.fs-container {
+    width: 90%;
+    max-width: 1100px;
+    overflow: hidden;
+}
+
+.fs-track {
+    display: flex;
+    transition: transform 0.4s ease;
+}
+
+.fs-slide {
+    width: 100%;
+    flex-shrink: 0;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+/* Flechas */
+.fs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 40px;
+    color: white;
+    background: rgba(0,0,0,0.4);
+    border: none;
+    cursor: pointer;
+    padding: 10px 18px;
+    border-radius: 8px;
+}
+
+.fs-prev { left: 20px; }
+.fs-next { right: 20px; }
+
+/* Cerrar */
+.fs-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 32px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}

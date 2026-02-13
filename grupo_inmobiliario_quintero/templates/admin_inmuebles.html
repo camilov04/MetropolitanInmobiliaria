@@ -25,6 +25,19 @@
 <a href="{{ url_for('panel_admin') }}" class="btn-secondary">
     ← Volver al panel
 </a>
+<div class="admin-filters">
+
+    <a href="{{ url_for('admin_inmuebles') }}"
+       class="filter-btn {% if not solo_destacados %}active{% endif %}">
+        Todos
+    </a>
+
+    <a href="{{ url_for('admin_inmuebles', destacados=1) }}"
+       class="filter-btn {% if solo_destacados %}active{% endif %}">
+        ⭐ Destacados
+    </a>
+
+</div>
 
 <div class="admin-list">
 
@@ -40,11 +53,18 @@
         </div>
 
         <div class="admin-info">
-            <h4>{{ i.titulo }}</h4>
+            <h4>
+                {{ i.titulo }}
+
+                {% if i.destacado %}
+                    <span class="star-badge">⭐</span>
+                {% endif %}
+            </h4>
             <p class="muted">
                 {{ i.tipo_negocio }} · {{ i.tipo }} · ${{ "{:,.0f}".format(i.precio) }}
             </p>
         </div>
+
 
         <div class="admin-actions">
             <a href="{{ url_for('editar_inmueble', id=i.id) }}" class="btn-edit">✏️</a>
@@ -54,6 +74,49 @@
                   onsubmit="return confirm('¿Eliminar inmueble?');">
                 <button class="btn-delete">🗑️</button>
             </form>
+        <div class="plan-box">
+
+    {% if i.plan_activo %}
+
+        <span class="plan-badge plan-{{ i.plan|lower }}">
+            {{ i.plan }}
+        </span>
+
+        <p class="plan-date">
+            Vence: {{ i.plan_vencimiento.strftime("%d/%m/%Y") }}
+        </p>
+
+        <form method="POST" action="{{ url_for('desactivar_plan', id=i.id) }}">
+            <button class="btn-delete">Desactivar</button>
+        </form>
+
+    {% else %}
+
+        <span class="plan-badge plan-none">
+            Sin plan
+        </span>
+
+        <form method="POST" action="{{ url_for('activar_plan', id=i.id) }}">
+
+            <select name="plan" required>
+                <option value="">Seleccionar plan</option>
+                <option value="Basico">Básico</option>
+                <option value="Premium">Premium</option>
+                <option value="Destacado">Destacado</option>
+            </select>
+
+            <button class="btn-primary">Activar</button>
+
+        </form>
+
+    {% endif %}
+
+</div>
+
+
+
+
+
         </div>
 
     </div>

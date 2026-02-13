@@ -11,6 +11,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # ================= MODELO =================
+from datetime import datetime
+
 class Inmueble(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -28,22 +30,35 @@ class Inmueble(db.Model):
     precio = db.Column(db.Float, nullable=False)
     imagen_url = db.Column(db.String(255))
 
-    destacado = db.Column(db.Boolean, default=False)  # ⭐ NUEVO
-    id = db.Column(db.Integer, primary_key=True)
+    # ===== SISTEMA PLANES =====
+    plan = db.Column(db.String(20))
+    plan_activo = db.Column(db.Boolean, default=False)
+    plan_vencimiento = db.Column(db.DateTime)
+    estado_pago = db.Column(db.String(20), default="Pendiente")
 
-    titulo = db.Column(db.String(100), nullable=False)
-    tipo_negocio = db.Column(db.String(20), nullable=False)  # Venta / Arriendo
-    descripcion = db.Column(db.Text, nullable=False)
+    # ===== PRIORIDAD VISUAL =====
+    prioridad = db.Column(db.Integer, default=0)
 
-    tipo = db.Column(db.String(50), nullable=False)
-    municipio = db.Column(db.String(100), nullable=False)
+    # ===== DESTACADO HOME =====
+    destacado = db.Column(db.Boolean, default=False)
 
-    habitaciones = db.Column(db.Integer)
-    banos = db.Column(db.Integer)
-    parqueadero = db.Column(db.Boolean, default=False)
 
-    precio = db.Column(db.Float, nullable=False)
-    imagen_url = db.Column(db.String(255))
+def verificar_planes():
+    hoy = datetime.utcnow()
+
+    inmuebles = Inmueble.query.filter(
+        Inmueble.plan_activo == True,
+        Inmueble.plan_vencimiento != None
+    ).all()
+
+    for i in inmuebles:
+        if i.plan_vencimiento < hoy:
+            i.plan_activo = False
+            i.plan = None
+            i.plan_vencimiento = None
+
+    db.session.commit()
+
 
 # ================= LOGIN =================
 def login_required(f):
@@ -68,12 +83,23 @@ def logout():
     return redirect(url_for("login"))
 
 # ================= PUBLICO =================
+from datetime import datetime
+
 @app.route("/")
 def home():
-    destacados = Inmueble.query.filter_by(destacado=True).limit(4).all()
-    return render_template("index.html", destacados=destacados)
 
+    ahora = datetime.utcnow()
 
+    destacados = Inmueble.query.filter(
+        Inmueble.plan_activo == True,
+        Inmueble.plan == "Destacado",
+        Inmueble.plan_vencimiento > ahora
+    ).limit(4).all()
+
+    return render_template(
+        "index.html",
+        destacados=destacados
+    )
 
 
 @app.route("/inmuebles")
@@ -96,7 +122,14 @@ def mostrar_inmuebles():
     if municipio:
         query = query.filter(Inmueble.municipio.ilike(f"%{municipio}%"))
 
-    inmuebles = query.all()
+    inmuebles = query.order_by(
+        db.case(
+            (Inmueble.plan == "premium", 1),
+            (Inmueble.plan == "destacado", 2),
+            else_=3
+        )
+    ).all()
+
     return render_template("inmuebles.html", inmuebles=inmuebles)
 
 @app.route("/inmueble/<int:inmueble_id>")
@@ -132,11 +165,93 @@ def panel_admin():
 @app.route("/admin/inmuebles")
 @login_required
 def admin_inmuebles():
-    inmuebles = Inmueble.query.order_by(Inmueble.id.desc()).all()
+
+    solo_destacados = request.args.get("destacados")
+
+    query = Inmueble.query.order_by(Inmueble.id.desc())
+
+    if solo_destacados == "1":
+        query = query.filter_by(destacado=True)
+
+    inmuebles = query.all()
+
     return render_template(
         "admin_inmuebles.html",
-        inmuebles=inmuebles
+        inmuebles=inmuebles,
+        solo_destacados=solo_destacados
     )
+
+@app.route("/promocionar/<int:id>")
+def promocionar_inmueble(id):
+
+    inmueble = Inmueble.query.get_or_404(id)
+
+    return render_template(
+        "promocionar.html",
+        inmueble=inmueble
+    )
+
+from datetime import datetime, timedelta
+
+
+@app.route("/admin/activar_plan/<int:id>", methods=["POST"])
+@login_required
+def activar_plan(id):
+
+    inmueble = Inmueble.query.get_or_404(id)
+
+    plan = request.form.get("plan")
+
+    if not plan:
+        return redirect(url_for("admin_inmuebles"))
+
+    if plan == "Basico":
+        dias = 30
+    elif plan == "Premium":
+        dias = 60
+    elif plan == "Destacado":
+        dias = 90
+    else:
+        dias = 30
+
+    inmueble.plan = plan
+    inmueble.plan_activo = True
+    inmueble.plan_vencimiento = datetime.utcnow() + timedelta(days=dias)
+
+    db.session.commit()
+
+    return redirect(url_for("admin_inmuebles"))
+
+
+@app.route("/admin/desactivar_plan/<int:id>", methods=["POST"])
+@login_required
+def desactivar_plan(id):
+
+    inmueble = Inmueble.query.get_or_404(id)
+
+    inmueble.plan = None
+    inmueble.plan_activo = False
+    inmueble.plan_vencimiento = None
+
+    db.session.commit()
+
+    return redirect(url_for("admin_inmuebles"))
+
+
+
+
+@app.route("/admin/toggle_destacado/<int:id>")
+@login_required
+def toggle_destacado(id):
+
+    inmueble = Inmueble.query.get_or_404(id)
+
+    inmueble.destacado = not inmueble.destacado
+
+    db.session.commit()
+
+    return redirect(request.referrer or url_for("admin_inmuebles"))
+
 
 @app.route("/admin/inmuebles/nuevo")
 @login_required
@@ -148,18 +263,22 @@ def nuevo_inmueble():
 @login_required
 def agregar_inmueble():
     nuevo = Inmueble(
-        titulo=request.form["titulo"],
-        tipo_negocio=request.form["tipo_negocio"],
-        descripcion=request.form["descripcion"],
-        tipo=request.form["tipo"],
-        municipio=request.form["municipio"],
-        habitaciones=request.form.get("habitaciones") or None,
-        banos=request.form.get("banos") or None,
-        parqueadero=True if request.form.get("parqueadero") == "1" else False,
-        precio=float(request.form["precio"]),
-        destacado=True if request.form.get("destacado") else False,
-        imagen_url=request.form.get("imagen_url")
-    )
+    titulo=request.form["titulo"],
+    tipo_negocio=request.form["tipo_negocio"],
+    descripcion=request.form["descripcion"],
+    tipo=request.form["tipo"],
+    municipio=request.form["municipio"],
+    habitaciones=request.form.get("habitaciones") or None,
+    banos=request.form.get("banos") or None,
+    parqueadero=True if request.form.get("parqueadero") == "1" else False,
+    precio=float(request.form["precio"]),
+    imagen_url=request.form.get("imagen_url"),
+
+    plan="basico",
+    estado_pago="pendiente",
+    prioridad=0
+)
+
 
     db.session.add(nuevo)
     db.session.commit()

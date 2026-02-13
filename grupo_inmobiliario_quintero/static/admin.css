@@ -749,3 +749,169 @@ body.dark-mode textarea {
         gap: 6px;
     }
 }
+.admin-filters {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.filter-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #2a2a2a;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.filter-btn.active {
+    background: linear-gradient(45deg, #caa85c, #f1d18a);
+    color: black;
+}
+.star-badge {
+    margin-left: 6px;
+    font-size: 14px;
+}
+.btn-star {
+    background: linear-gradient(45deg, #caa85c, #f1d18a);
+    color: black;
+    border-radius: 6px;
+    padding: 6px 10px;
+    text-decoration: none;
+    font-size: 14px;
+}
+.btn-premium {
+    background: linear-gradient(45deg, gold, #8f6c00);
+    color: black;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    text-decoration: none;
+}
+.plan-box {
+    margin-top: 10px;
+}
+
+.plan-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.plan-basico {
+    background: #bdbdbd;
+    color: black;
+}
+
+.plan-premium {
+    background: #1e88e5;
+    color: white;
+}
+
+.plan-destacado {
+    background: linear-gradient(45deg, gold, orange);
+    color: black;
+}
+
+.plan-none {
+    background: #eee;
+    color: #666;
+}
+
+.plan-date {
+    font-size: 12px;
+    margin: 5px 0;
+}
+/* =========================
+   PLANES VISUALES ADMIN
+========================= */
+
+.plan-box {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e3e3e3;
+}
+
+.dark-mode .plan-box {
+    background: #1e1e1e;
+    border: 1px solid #333;
+}
+
+/* BADGE BASE */
+.plan-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* ===== COLORES PLANES ===== */
+
+.plan-basico {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.plan-premium {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.plan-destacado {
+    background: linear-gradient(135deg, #d4af37, #b8860b);
+    color: white;
+}
+
+.plan-none {
+    background: #ececec;
+    color: #666;
+}
+
+/* Dark mode ajustes */
+.dark-mode .plan-basico {
+    background: #1b3b2a;
+    color: #6ee7a8;
+}
+
+.dark-mode .plan-premium {
+    background: #0f2c4d;
+    color: #6ec6ff;
+}
+
+.dark-mode .plan-destacado {
+    background: linear-gradient(135deg, #c9a227, #a67c00);
+    color: #fff;
+}
+
+.dark-mode .plan-none {
+    background: #333;
+    color: #aaa;
+}
+
+/* Fecha */
+.plan-date {
+    font-size: 12px;
+    margin: 6px 0;
+    opacity: 0.8;
+}
+
+/* Select plan */
+.plan-box select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-right: 6px;
+}
+
+.dark-mode .plan-box select {
+    background: #222;
+    color: white;
+    border: 1px solid #444;
+}

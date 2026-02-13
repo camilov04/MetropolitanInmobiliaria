@@ -27,6 +27,19 @@
             <div class="inmueble-card">
                 <img class="imagen-inmueble" src="{{ i.imagen_url }}">
                 <div class="card-body">
+                    {% if i.plan == "premium" %}
+                    <span class="badge-premium">👑 Premium</span>
+                    {% elif i.plan == "destacado" %}
+                    <span class="badge-destacado">⭐ Destacado</span>
+                    {% endif %}
+
+                    {% if i.plan_activo %}
+                        <span class="badge {{ i.plan }}">
+                            {{ i.plan|capitalize }}
+                        </span>
+                    {% endif %}
+
+
                     <h3>{{ i.titulo }}</h3>
                     <div class="datos-clave">
     <div class="dato precio">
