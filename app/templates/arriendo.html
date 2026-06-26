@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="top-actions">
+    <a href="{{ url_for('home') }}" class="btn-volver">
+        ← Volver al inicio
+    </a>
+</div>
+
+<section class="info-section" style="max-width:600px;margin:40px auto 0 auto;text-align:center;">
+    <h2>🏡 REQUISITOS Y DOCUMENTOS</h2>
+    <h3 style="margin-top: 8px;">Metropolitan Inmobiliaria</h3>
+    <p>En Metropolitan Inmobiliaria te acompañamos en todo el proceso para que sea rápido, seguro y sin complicaciones.<br>
+    Aquí te explicamos lo que necesitas según tu caso 👇</p>
+    <hr style="margin: 24px 0;">
+
+    <h3 style="margin-bottom: 12px;">🔑 PROPIETARIOS</h3>
+
+    <div style="margin-bottom: 32px;">
+        <h4 style="margin-bottom: 8px;">🏡 Para <span style="color:#2d7a2d;">ARRENDAR</span> tu inmueble</h4>
+        <p style="margin-bottom: 8px;">Para iniciar el proceso de arrendamiento necesitamos:</p>
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>📄 Copia de la cédula del propietario</li>
+            <li>📄 Certificado de tradición y libertad (actualizado)</li>
+            <li>📄 Certificado bancario</li>
+            <li>📄 Recibo de servicios públicos (agua, luz o gas)</li>
+            <li>📄 Factura de administración (si aplica)</li>
+        </ul>
+        <div style="margin-bottom: 18px;">
+            <span class="tip-box">💡 No te preocupes si no tienes todos los documentos en este momento, te acompañamos paso a paso.</span>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 32px;">
+        <h4 style="margin-bottom: 8px;">💰 Para <span style="color:#2d7a2d;">VENDER</span> tu inmueble</h4>
+        <p style="margin-bottom: 8px;">Para la venta se requieren los siguientes documentos:</p>
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>📄 Copia de la cédula del propietario</li>
+            <li>📄 Certificado de tradición y libertad (actualizado)</li>
+            <li>📄 Certificado bancario</li>
+            <li>📄 Recibo de servicios públicos</li>
+            <li>📄 Factura de administración (si aplica)</li>
+            <li>📄 Paz y salvo de impuestos</li>
+            <li>📄 Certificado de valorización</li>
+        </ul>
+        <div style="margin-bottom: 18px;">
+            <span class="tip-box">💡 Nos encargamos de asesorarte durante todo el proceso para que sea seguro y exitoso.</span>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:18px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+        <a href="{{ url_for('publicar') }}" class="hero-btn">Publica tu inmueble</a>
+    </div>
+</section>
+{% endblock %}

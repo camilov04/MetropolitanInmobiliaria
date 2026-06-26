@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metropolitan Inmobiliaria</title>
+<link rel="canonical" href="{{ canonical_url }}">
+<meta property="og:url" content="{{ canonical_url }}">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5145767387471781"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body class="light-mode">
+
+<!-- Aviso de cookies para cumplimiento de AdSense y privacidad -->
+<div id="cookieConsent" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#222; color:#fff; padding:1em; z-index:9999; text-align:center; font-size:1rem;">
+    Este sitio utiliza cookies para mejorar tu experiencia y mostrar anuncios personalizados. Al continuar navegando aceptas nuestra <a href="/privacidad" style="color:#ffd700; text-decoration:underline;">Política de Privacidad</a> y el uso de cookies.
+    <button id="acceptCookies" style="margin-left:1em; background:#ffd700; color:#222; border:none; padding:0.5em 1em; border-radius:4px; cursor:pointer;">Aceptar</button>
+</div>
+<script>
+    if (!localStorage.getItem('cookiesAccepted')) {
+        document.getElementById('cookieConsent').style.display = 'block';
+    }
+    document.getElementById('acceptCookies').onclick = function() {
+        localStorage.setItem('cookiesAccepted', 'true');
+        document.getElementById('cookieConsent').style.display = 'none';
+    };
+</script>
+
+<header class="main-header">
+
+    <div class="header-container">
+
+        <!-- LOGO -->
+        <a href="{{ url_for('home') }}" class="logo-area brand-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" class="logo">
+            <span class="brand">METROPOLITAN</span>
+        </a>
+
+        <div class="header-right">
+
+        <!-- NAV -->
+        <nav class="main-nav">
+            <a href="{{ url_for('home') }}">Inicio</a>
+            <a href="{{ url_for('mostrar_inmuebles') }}">Inmuebles</a>
+            <a href="{{ url_for('publicar') }}" class="btn-publicar">
+                Publica tu inmueble
+            </a>
+
+        </nav>
+
+        <!-- CONTROLES -->
+        <div class="header-controls">
+
+            <button id="darkToggle" class="dark-btn">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD8klEQVR4nO0ZPU8UQXT9iFqDQWv/AWioMHaKVlJcsu/tESu/Kj0x2gk0xEJA9AeQu5k99CJoZXsFN7NeQsDCfyAEbMWCijVv9j7mlj1ud+9u8ZCXvGSy2Xnz3rzvN4ZxAscU3MnJ0yVmpgld1zhl9BqUmJmWHF2FNlhGr4FgMFUVgNbGvwJrNlwUHFYkx8/l7Hh/uwKUs+P9ksEXRbOQ6jO6DQ6DZzXGOGbbFUBwzGr/PTG6DSVmXa8fiPvShuG4AkgbhhWNyn9Eu+sCKOY8E/IclIMTFGVaOTHtkRycujZhxUgKVm28Ihnu1Q7Pwd1ABm2wJEcMElAya6wmIMM9omkkCYLBTE31HO9H3S85PtJMbMZIGn4UUuckx0nJ4BWto+7/ujB6nvbG3X8oqNDGMRPHqchcvtl4tWI+GYW0ZtZQnIxc8oJG5rCQfaiT0jqMfZYXU5clx7eS4VbdwX3IcEtwmHfy5qVW9FZtvNLAB4PlWAJUnYzsNEjVXjTBF4LDn6aMHxRkV3CcCNIInaH8SwsSFfwUWgBSFyUYPUZXcFL/r7h474JkuORnUHDcpu+C46xgMFdZbwcIkycajZeH0w20GO4TL5FMSE80eqzWBVA372NeMFwrMesmVaJ+WvRN2HBLMlz3C+FqmtAToDq7SaIMDUSc4ryw8YFuQmQ2jbcO84VC6kwresXijbOSwYJPYxN6dKKz6MyuleEilx6QHH7rzEemwfGd7hMUBIykQEUbzWzC3HwTTWxoUWbOSAIqtl8LlWTXcWk5HG9rWtxMpHMrZc1rerQJctiw4JJjM9ypm5I11HYPK2x8qaO/p6XiTLPdJaNNEBw/ato0o/ITXP76USuHKWLUBYA3HRBgtkqPmqWo/BwfAdxq/c7wdQP66nnBTEjEhNxw/EQGVWl20Iklh181enlzMDZjccOozJmjcWmVbLijhdGfiQ3AKPNqZrROSSlWIuPwXdPmrJEU+EsJysyRaXB8r5cSYXqENkzGGpMMHlKhpTHwvLHGh4UwmqB/GpjnCjMNrSb1y8waa9uk/OW0Pt+pNDJ5nxAbVB40K6c9m6+bjfRqKd68H4hZTkdqaPxCeEztCAYfqEBTqEJlPdrozBe70dDQ3DNKS6mSG8PdponnACr/qZlNmJYydk8ctqknJ/RuGzabMU6hUrWZufRAV5t6WUj1SWY9dWwYMSKC0kjeHKxkbDVWoTV9i+OUjg0jxEvHJ9dK1RynybH16BQWVOvIYIqw44OtqKNF6mGj7ndseHxko8VQw90Wb2RHOtwVvTxeL/X6A4fT609MZZWlYYWwU498gugxWE7kka/nn1n/m4dut8Ub2QkcF/gLfjogDp6KAqQAAAAASUVORK5CYII=" alt="external-sun-summer-tanah-basah-basic-outline-tanah-basah" style=" height: 38px;">            </button>
+
+            <a href="https://wa.me/573226252318"
+               target="_blank"
+               class="whatsapp-btn">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFTElEQVR4nO1ZaYgcVRBuj6hRvOKJF/FERPAAjRg1aFBEEAQzzFT1xsWgiwfxPlZEo2g0RhEVQTcqm0y93o1D0B+KwV+rO1NvduNKNAkajyBovBI3HsFN3BhXamZXe2p6prtnetYf7gcPBua9elX16m7HmcIUptA0xhYt2rOYzcxigk5rcJU1sN4SbmPCP9jAqPy2hBvYwBtFggetwdm5XGov579GoSdzDBtczIRfW4NjsRbht5bg6fyK+SdMOuM2l5phCV60hDtjM64Wl14IlvXnUkdMCvNM7jxLuKVZxgNeZJv1wG0Z42KzbPCFOgxsZ4KV7GGH9eB80ehQV8c0WfKbyT3PEtzABB4b+LX2i+ArciZR5t95/sp9xQFrMP6lMP1Rtu2AqPRsLjWds3C9NbCxhhCr49CLoPlq5iXCWIMPbMil9mmUdl/fnL2LBHcx4UiQEIm8hDX4XIDWtxQ9uMhJCJxtO5MJP6++B5Y1SRiuYcK/lGY+KfamZzoJo1/8xMCHASaFDREcyqUOZoPfa80PZNtOdFqE/pKzV74EEw4PeXB4bGJM8Ky2eTZ4id5ns22nMLlzk4rjXDanCp9ggy/HJXJkAJHFVfs8vJ8N7J7IrElFDjZ4t1bemt708ZEJWIKHFYGtYlL+PcVs5nLtHwWDNyYhwFBXxzQ2+JlS4NJIh8fGnD0ktitHulPvY8L3AqLG2iQEEDC5C1TJsVmKRicM+WzbWUr7I1r7Er8t4a7AJJRNX+gkgKGujv2tgd/8tPPkXhB60JJ7h2LqTb1nsDt1dO2SosnY7YMl7K1UJnQ6YbAGSdnebUHZ2RrYESxAZqGTEFjqqkr6qyIIAGsqDnkwJ5A4YT5AgLeTbFSK2cwsZc4fhx7SzUmthsOS214lwPLrjk2K+YlwrqOhEwZr4Gf/ob7u9kOC9pUdGdaG5Ypmq2BbWQnsDD3EBn7yHxpcMf+wWnslKljCP30X7EqyyOvrbt+v8pVhR+ghnQMKvemT6+1ngifUM/8wuCJ9WhICDFZFO/gx9BAbHKiM65nL6u0fj0jv6qRjyT03aH/B4NlM8EiUZt4anB07UUpLpw7dG3Ym7+GhOvWXwixlFvqjkmiUDXwzLuQoE3SzB6fX4eVWlQdWhgpgDd6kHHN16CHHcaTYsoSbqjIzwTr2IFMulaFQ9b+B3ZKwxN6rBajsBNngPaGMiEbUBaP1HFnPiazBD2pm6TprgNzj/LQGyD2oqiLuyZwThQ9xzHVxzchfwzDBS7pSrbeYcFiKyLolDeEmvaeeAJ3a+4UxJwYKBi+1BjmiEE9WdYOEW5X5PBr58pJTEv6ibPmhOAL8Iwi5F0uBJ1oOsP9RSX66/BCB1L7fiz2Zo2JdbAke0/HdaQIyfhFhpIuzhEukxxgI6K/l5UrjxkoTfib2hdU2CG85LUaxNz1Tjy1lsKD7kUiQylKZ0O0t4do/HNBtpAQCD652GnlumXWqMHeG0yIwuXMDfYTgqYYISg+gS4OJ/6QEkClyKVSKPedS0xtlPF/O4EuD2lM2+HqkHjgIbPBxFYM/LU2VAz9kwHfjgsyIw7jkFg7Q+kTJ0MzMtaqgi5SMSpGjVNTdVyD3iqIHp8pETZjNe3iSFIUSeUq+VePDCIvNEy5pWPP/asdX40/SYgObCx5c5TSLQhauDUn7I5bgfWvgNT32aGgRbhetF15dcKCTBGQOqRgelhwgpiEzH79tSrtZLjtgfXzmYaN8sWxocFtfAOhjQlP04GYZtEa1R+nCmOAWS9glNRAb+KLUnpY/t34lfsUGlkuP0MqQPIUp/N/wNwbK5Yv/njFKAAAAAElFTkSuQmCC" alt="whatsapp--v1" style="height: 38px;">            
+            </a>
+
+        </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="main-container public-shell">
+    {% block content %}{% endblock %}
+    </main>
+
+    <!-- Anuncio Google AdSense, centrado y discreto -->
+    <div style="width:100%;display:flex;justify-content:center;margin:24px 0;">
+        <ins class="adsbygoogle"
+            style="display:block;min-width:250px;max-width:100%;height:90px"
+            data-ad-client="ca-pub-5145767387471781"
+            data-ad-slot="1234567890"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</main>
+
+
+
+<footer class="main-footer">
+    © {{ 2026 }} Metropolitan Inmobiliaria
+</footer>
+
+<div id="appDialog" class="app-dialog" hidden>
+    <div class="app-dialog__backdrop" data-dialog-close></div>
+    <div class="app-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle">
+        <div class="app-dialog__badge">Metropolitan</div>
+        <h3 id="appDialogTitle" class="app-dialog__title">Confirmar acción</h3>
+        <p id="appDialogMessage" class="app-dialog__message"></p>
+        <div class="app-dialog__actions">
+            <button type="button" id="appDialogCancel" class="app-dialog__btn app-dialog__btn--ghost">Cancelar</button>
+            <button type="button" id="appDialogConfirm" class="app-dialog__btn app-dialog__btn--primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de carga -->
+<div id="loadingModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:2rem 3rem; border-radius:10px; box-shadow:0 2px 16px #0003; text-align:center; font-size:1.3rem;">
+    <span class="loader" style="display:inline-block; width:2em; height:2em; border:4px solid #ccc; border-top:4px solid #007bff; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:1em;"></span>
+    <div>Por favor espera, procesando...</div>
+  </div>
+</div>
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
+
+<script>
+function showLoading() {
+    document.getElementById('loadingModal').style.display = 'flex';
+}
+function hideLoading() {
+    document.getElementById('loadingModal').style.display = 'none';
+}
+// Hacer globales para acceso desde consola y otros scripts
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+
+// Mostrar el modal al enviar cualquier formulario
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function() {
+            showLoading();
+        });
+    });
+    // Si usas AJAX, llama showLoading() manualmente antes de la petición y hideLoading() al terminar.
+});
+const toggle = document.getElementById("darkToggle");
+
+function syncThemeClasses() {
+    document.body.classList.toggle("dark-mode", localStorage.getItem("darkmode") === "true");
+    document.body.classList.toggle("light-mode", localStorage.getItem("darkmode") !== "true");
+}
+
+toggle.onclick = () => {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkmode", document.body.classList.contains("dark-mode"));
+    syncThemeClasses();
+};
+
+syncThemeClasses();
+
+(function () {
+    const dialog = document.getElementById("appDialog");
+    const titleEl = document.getElementById("appDialogTitle");
+    const messageEl = document.getElementById("appDialogMessage");
+    const cancelBtn = document.getElementById("appDialogCancel");
+    const confirmBtn = document.getElementById("appDialogConfirm");
+    let resolver = null;
+
+    function closeDialog(result) {
+        dialog.hidden = true;
+        document.body.classList.remove("dialog-open");
+        if (resolver) {
+            resolver(result);
+            resolver = null;
+        }
+    }
+
+    window.appConfirm = function (message, options = {}) {
+        titleEl.textContent = options.title || "Confirmar acción";
+        messageEl.textContent = message;
+        cancelBtn.hidden = false;
+        cancelBtn.textContent = options.cancelText || "Cancelar";
+        confirmBtn.textContent = options.confirmText || "Aceptar";
+        dialog.hidden = false;
+        document.body.classList.add("dialog-open");
+        confirmBtn.focus();
+
+        return new Promise((resolve) => {
+            resolver = resolve;
+        });
+    };
+
+    window.appAlert = function (message, options = {}) {
+        titleEl.textContent = options.title || "Mensaje";
+        messageEl.textContent = message;
+        cancelBtn.hidden = true;
+        confirmBtn.textContent = options.confirmText || "Entendido";
+        dialog.hidden = false;
+        document.body.classList.add("dialog-open");
+        confirmBtn.focus();
+
+        return new Promise((resolve) => {
+            resolver = resolve;
+        });
+    };
+
+    confirmBtn.addEventListener("click", () => closeDialog(true));
+    cancelBtn.addEventListener("click", () => closeDialog(false));
+    dialog.addEventListener("click", (event) => {
+        if (event.target.hasAttribute("data-dialog-close")) {
+            closeDialog(false);
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (!dialog.hidden && event.key === "Escape") {
+            closeDialog(false);
+        }
+    });
+
+    document.addEventListener("click", async (event) => {
+        const link = event.target.closest("a[data-confirm]");
+        if (!link) {
+            return;
+        }
+
+        event.preventDefault();
+        const confirmed = await window.appConfirm(link.dataset.confirm, {
+            title: link.dataset.confirmTitle || "Confirmar navegación",
+            confirmText: link.dataset.confirmAccept || "Aceptar",
+            cancelText: link.dataset.confirmCancel || "Cancelar"
+        });
+
+        if (confirmed) {
+            window.location.href = link.href;
+        }
+    });
+
+    document.addEventListener("submit", async (event) => {
+        const form = event.target;
+        const submitter = event.submitter;
+        const message = (submitter && submitter.dataset.confirm) || form.dataset.confirm;
+
+        if (!message || form.dataset.dialogConfirmed === "true") {
+            return;
+        }
+
+        event.preventDefault();
+        const confirmed = await window.appConfirm(message, {
+            title: (submitter && submitter.dataset.confirmTitle) || form.dataset.confirmTitle || "Confirmar acción",
+            confirmText: (submitter && submitter.dataset.confirmAccept) || form.dataset.confirmAccept || "Aceptar",
+            cancelText: (submitter && submitter.dataset.confirmCancel) || form.dataset.confirmCancel || "Cancelar"
+        });
+
+        if (confirmed) {
+            form.dataset.dialogConfirmed = "true";
+            if (submitter && typeof form.requestSubmit === "function") {
+                form.requestSubmit(submitter);
+            } else {
+                form.submit();
+            }
+            delete form.dataset.dialogConfirmed;
+        }
+    }, true);
+})();
+
+(function () {
+    const panels = document.querySelectorAll('.search-panel');
+
+    function closePanels() {
+        panels.forEach((panel) => panel.classList.remove('is-open'));
+        document.body.classList.remove('search-panel-open');
+    }
+
+    document.addEventListener('click', (event) => {
+        const openTrigger = event.target.closest('[data-search-open]');
+        const closeTrigger = event.target.closest('[data-search-close]');
+
+        if (openTrigger) {
+            const panel = document.getElementById(openTrigger.dataset.searchOpen);
+            if (panel) {
+                panel.classList.add('is-open');
+                document.body.classList.add('search-panel-open');
+            }
+        }
+
+        if (closeTrigger) {
+            closePanels();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closePanels();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            closePanels();
+        }
+    });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,488 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">Panel</a>
+    <span>›</span>
+    <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+    <span>›</span>
+    <span>Nuevo</span>
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Inventario</span>
+        <h2>Nuevo inmueble</h2>
+        <p>Registra primero la información comercial del inmueble y luego completa los datos internos del propietario.</p>
+    </div>
+    <div class="admin-page-hero__actions">
+        <a href="{{ return_target }}" class="btn-secondary">Volver a inmuebles</a>
+    </div>
+</section>
+
+<div class="admin-card admin-card--form-wrap">
+    <div class="admin-stepper">
+        <button type="button" class="admin-stepper__tab is-active" data-step-target="inmueble">Info inmueble</button>
+        <button type="button" class="admin-stepper__tab" data-step-target="propietario">Info propietario</button>
+    </div>
+
+    <form
+        class="admin-form"
+        method="post"
+        action="{{ url_for('agregar_inmueble') }}"
+        enctype="multipart/form-data"
+        id="nuevoInmuebleForm">
+
+        <input type="hidden" name="next" value="{{ return_target or url_for('admin_inmuebles') }}">
+        <input type="hidden" id="latitud" name="latitud" value="{{ request.form.get('latitud', '') }}">
+        <input type="hidden" id="longitud" name="longitud" value="{{ request.form.get('longitud', '') }}">
+
+        <section class="admin-form-section is-active" data-step-panel="inmueble">
+            <div class="form-group">
+                <label for="titulo">Titulo</label>
+                <input
+                    type="text"
+                    id="titulo"
+                    name="titulo"
+                    value="{{ request.form.get('titulo', '') }}"
+                    placeholder="Ejemplo: Apartamento en Laureles"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="ubicacion">Ubicacion (pega el enlace de Google Maps)</label>
+                <input
+                    type="text"
+                    id="ubicacion"
+                    name="ubicacion"
+                    value="{{ request.form.get('ubicacion', '') }}"
+                    placeholder="Pega aqui el enlace de Google Maps"
+                    autocomplete="off">
+                <small>Pega el enlace completo, por ejemplo: https://maps.app.goo.gl/xxxx o https://goo.gl/maps/xxxx</small>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo de inmueble</label>
+                <select name="tipo" id="tipo" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Casa" {% if request.form.get('tipo') == 'Casa' %}selected{% endif %}>Casa</option>
+                    <option value="Apartamento" {% if request.form.get('tipo') == 'Apartamento' %}selected{% endif %}>Apartamento</option>
+                    <option value="Oficina" {% if request.form.get('tipo') == 'Oficina' %}selected{% endif %}>Oficina</option>
+                    <option value="Local" {% if request.form.get('tipo') == 'Local' %}selected{% endif %}>Local</option>
+                    <option value="Lote" {% if request.form.get('tipo') == 'Lote' %}selected{% endif %}>Lote</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="municipio">Municipio</label>
+                <input type="text" id="municipio" name="municipio" required value="{{ request.form.get('municipio', '') }}">
+            </div>
+
+            <div class="form-group campo-habitaciones">
+                <label for="habitaciones">Habitaciones</label>
+                <input type="number" id="habitaciones" name="habitaciones" min="0" value="{{ request.form.get('habitaciones', '') }}">
+            </div>
+
+            <div class="form-group campo-banos">
+                <label for="banos">Banos</label>
+                <input type="number" id="banos" name="banos" min="0" value="{{ request.form.get('banos', '') }}">
+            </div>
+
+            <div class="form-group campo-parqueadero">
+                <label for="parqueadero">Parqueadero</label>
+                <select id="parqueadero" name="parqueadero">
+                    <option value="0" {% if request.form.get('parqueadero') == '0' %}selected{% endif %}>No</option>
+                    <option value="1" {% if request.form.get('parqueadero') == '1' %}selected{% endif %}>Si</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="precio">Precio</label>
+                <input type="number" id="precio" name="precio" required value="{{ request.form.get('precio', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="comision_porcentaje">Comision administracion</label>
+                <div class="admin-input-with-suffix">
+                    <input
+                        type="text"
+                        id="comision_porcentaje"
+                        name="comision_porcentaje"
+                        inputmode="decimal"
+                        placeholder="12"
+                        data-percentage-input
+                        value="{{ request.form.get('comision_porcentaje', '') }}">
+                    <span class="admin-input-suffix">%</span>
+                </div>
+                <small>Ingresa solo el numero. Ejemplo: 12 para representar 12%.</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input
+                        type="checkbox"
+                        name="destacado"
+                        value="1"
+                        {% if request.form.get('destacado') in ['1', 'on', 'true'] %}checked{% endif %}>
+                    Marcar como destacado
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo_negocio">Tipo de negocio</label>
+                <select name="tipo_negocio" id="tipo_negocio" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Venta" {% if request.form.get('tipo_negocio') == 'Venta' %}selected{% endif %}>Venta</option>
+                    <option value="Arriendo" {% if request.form.get('tipo_negocio') == 'Arriendo' %}selected{% endif %}>Arriendo</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width" id="descripcion-group" hidden>
+                <label for="descripcionAuto">Descripcion</label>
+                <textarea
+                    name="descripcion"
+                    id="descripcionAuto"
+                    rows="7"
+                    placeholder="La descripcion se generara automaticamente, pero puedes editarla.">{{ request.form.get('descripcion', '') }}</textarea>
+                <small>La descripcion se autocompleta segun los datos, pero puedes modificarla antes de guardar.</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="imagenes">Imagenes del inmueble</label>
+                <input type="file" id="imagenes" name="imagenes" multiple accept="image/*">
+                <small>Selecciona varias imagenes, elimina las que no correspondan y marca cual sera la portada.</small>
+                <div class="imagenes-actuales imagenes-actuales--draft" id="imagenes-preview-container" hidden></div>
+            </div>
+
+            <div class="form-group full-width admin-form-actions admin-form-actions--end">
+                <button type="button" class="btn-primary" id="goOwnerStep">Agregar informacion de propietario</button>
+            </div>
+        </section>
+
+        <section class="admin-form-section" data-step-panel="propietario" hidden>
+            <div class="form-group">
+                <label for="propietario_nombre">Nombre completo</label>
+                <input type="text" id="propietario_nombre" name="propietario_nombre" value="{{ request.form.get('propietario_nombre', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="propietario_cedula">Cedula</label>
+                <input type="text" id="propietario_cedula" name="propietario_cedula" value="{{ request.form.get('propietario_cedula', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="propietario_telefono">Numero telefonico</label>
+                <input type="text" id="propietario_telefono" name="propietario_telefono" value="{{ request.form.get('propietario_telefono', '') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="propietario_telefono_secundario">Numero telefonico secundario</label>
+                <input type="text" id="propietario_telefono_secundario" name="propietario_telefono_secundario" value="{{ request.form.get('propietario_telefono_secundario', '') }}">
+                <small>Opcional.</small>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="propietario_correo">Correo electronico</label>
+                <input type="email" id="propietario_correo" name="propietario_correo" value="{{ request.form.get('propietario_correo', '') }}">
+            </div>
+
+            <div class="form-group full-width admin-form-actions admin-form-actions--spread">
+                <button type="button" class="btn-secondary" data-step-target="inmueble">Volver a info inmueble</button>
+                <button type="submit" class="btn-primary btn-primary--full">Crear inmueble</button>
+            </div>
+        </section>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const tipo = document.getElementById("tipo");
+    const tipoNegocio = document.getElementById("tipo_negocio");
+    const descGroup = document.getElementById("descripcion-group");
+    const descTextarea = document.getElementById("descripcionAuto");
+    const imageInput = document.getElementById("imagenes");
+    const previewContainer = document.getElementById("imagenes-preview-container");
+    const percentageInputs = document.querySelectorAll("[data-percentage-input]");
+    const stepTabs = document.querySelectorAll("[data-step-target]");
+    const stepPanels = document.querySelectorAll("[data-step-panel]");
+    const goOwnerStep = document.getElementById("goOwnerStep");
+
+    const campoHabitaciones = document.querySelector(".campo-habitaciones");
+    const campoBanos = document.querySelector(".campo-banos");
+    const campoParqueadero = document.querySelector(".campo-parqueadero");
+
+    let selectedFiles = [];
+    let descripcionEditada = false;
+
+    function normalizePercentageValue(value) {
+        return value.replace(/[^\d.,]/g, "").replace(",", ".");
+    }
+
+    function activateStep(step) {
+        stepTabs.forEach((tab) => {
+            tab.classList.toggle("is-active", tab.dataset.stepTarget === step);
+        });
+
+        stepPanels.forEach((panel) => {
+            const active = panel.dataset.stepPanel === step;
+            panel.hidden = !active;
+            panel.classList.toggle("is-active", active);
+        });
+    }
+
+    function validateInmuebleStep() {
+        const requiredIds = ["titulo", "tipo", "municipio", "precio", "tipo_negocio"];
+        for (const id of requiredIds) {
+            const field = document.getElementById(id);
+            if (field && !field.value.trim()) {
+                field.reportValidity();
+                field.focus();
+                return false;
+            }
+        }
+
+        if (descGroup && !descGroup.hidden && !descTextarea.value.trim()) {
+            descTextarea.reportValidity();
+            descTextarea.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    function formatPrecio(valor) {
+        if (!valor) {
+            return "";
+        }
+        return "$" + Number(valor).toLocaleString("es-CO");
+    }
+
+    function syncFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach((file) => dataTransfer.items.add(file));
+        imageInput.files = dataTransfer.files;
+    }
+
+    function renderImagePreviews() {
+        previewContainer.innerHTML = "";
+        previewContainer.hidden = selectedFiles.length === 0;
+
+        selectedFiles.forEach((file, index) => {
+            const card = document.createElement("div");
+            card.className = `img-admin ${index === 0 ? "is-cover" : ""}`;
+
+            const image = document.createElement("img");
+            image.className = "preview-img";
+            image.alt = file.name;
+            image.src = URL.createObjectURL(file);
+
+            const coverBadge = document.createElement("span");
+            coverBadge.className = "img-admin__badge";
+            coverBadge.textContent = index === 0 ? "Portada" : "Vista previa";
+
+            const actions = document.createElement("div");
+            actions.className = "img-admin__actions";
+
+            const coverButton = document.createElement("button");
+            coverButton.type = "button";
+            coverButton.className = `btn-portada ${index === 0 ? "is-active" : ""}`;
+            coverButton.textContent = index === 0 ? "Portada actual" : "Usar de portada";
+            coverButton.addEventListener("click", () => {
+                if (index === 0) {
+                    return;
+                }
+                const [selected] = selectedFiles.splice(index, 1);
+                selectedFiles.unshift(selected);
+                syncFileInput();
+                renderImagePreviews();
+            });
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "btn-eliminar btn-eliminar--local";
+            removeButton.setAttribute("aria-label", "Quitar imagen seleccionada");
+            removeButton.title = "Quitar imagen seleccionada";
+            removeButton.addEventListener("click", () => {
+                selectedFiles.splice(index, 1);
+                syncFileInput();
+                renderImagePreviews();
+            });
+
+            actions.append(coverButton, removeButton);
+            card.append(image, coverBadge, actions);
+            previewContainer.appendChild(card);
+        });
+    }
+
+    function ocultarTodo() {
+        campoHabitaciones.style.display = "none";
+        campoBanos.style.display = "none";
+        campoParqueadero.style.display = "none";
+    }
+
+    function actualizarCampos() {
+        ocultarTodo();
+
+        if (tipo.value === "Casa" || tipo.value === "Apartamento") {
+            campoHabitaciones.style.display = "flex";
+            campoBanos.style.display = "flex";
+            campoParqueadero.style.display = "flex";
+        }
+
+        if (tipo.value === "Oficina") {
+            campoBanos.style.display = "flex";
+            campoParqueadero.style.display = "flex";
+        }
+
+        if (tipo.value === "Local") {
+            campoBanos.style.display = "flex";
+        }
+    }
+
+    function toggleDescripcion() {
+        const shouldShow = tipoNegocio.value === "Venta" || tipoNegocio.value === "Arriendo";
+        descGroup.hidden = !shouldShow;
+        descTextarea.required = shouldShow;
+
+        if (!shouldShow) {
+            descTextarea.value = "";
+            descripcionEditada = false;
+        }
+    }
+
+    function generarDescripcion(force = false) {
+        if (descGroup.hidden) {
+            return;
+        }
+        if (descripcionEditada && !force) {
+            return;
+        }
+
+        const tipoNegocioValue = tipoNegocio.value;
+        if (!tipoNegocioValue) {
+            return;
+        }
+
+        const tipoValue = document.querySelector('[name="tipo"]').value || "Inmueble";
+        const municipio = document.querySelector('[name="municipio"]').value;
+        const ubicacion = document.querySelector('[name="ubicacion"]').value;
+        const precio = formatPrecio(document.querySelector('[name="precio"]').value);
+        const habitaciones = document.querySelector('[name="habitaciones"]').value || "N/A";
+        const banos = document.querySelector('[name="banos"]').value || "N/A";
+        const parqueadero = document.querySelector('[name="parqueadero"]').value === "1" ? "Privado" : "No";
+        const comision = document.querySelector('[name="comision_porcentaje"]').value;
+
+        let incluyeAdmin = "";
+        if (tipoNegocioValue === "Arriendo" && comision) {
+            incluyeAdmin = `(Incluye administracion: ${comision}%)`;
+        }
+
+        let descripcion = `${tipoValue.toUpperCase()} en ${municipio}\n\n`;
+        descripcion += `Ubicacion: ${ubicacion}\n`;
+        descripcion += `Precio: ${precio} ${incluyeAdmin}\n\n`;
+        descripcion += "Caracteristicas:\n";
+        descripcion += `- Habitaciones: ${habitaciones}\n`;
+        descripcion += `- Banos: ${banos}\n`;
+        descripcion += "- Cocina: Integral\n";
+        descripcion += "- Sala/Comedor\n";
+        descripcion += `- Parqueadero: ${parqueadero}\n\n`;
+        descripcion += "Informacion adicional:\n";
+        descripcion += "- Zona de ropas\n";
+        descripcion += "- Balcon\n";
+        descripcion += "- Zonas comunes del conjunto\n";
+        descripcion += "- Vigilancia, piscina, juegos, etc.\n\n";
+        descripcion += "Escribenos para mas informacion o agendar visita";
+
+        descTextarea.value = descripcion;
+        descripcionEditada = false;
+    }
+
+    descTextarea.addEventListener("input", () => {
+        descripcionEditada = descTextarea.value.trim().length > 0;
+    });
+
+    const camposAuto = [
+        '[name="tipo"]',
+        '[name="municipio"]',
+        '[name="ubicacion"]',
+        '[name="precio"]',
+        '[name="habitaciones"]',
+        '[name="banos"]',
+        '[name="parqueadero"]',
+        '[name="comision_porcentaje"]'
+    ];
+
+    camposAuto.forEach((selector) => {
+        const element = document.querySelector(selector);
+        if (!element) {
+            return;
+        }
+
+        const refreshDescription = () => {
+            if (descTextarea.value.trim().length === 0) {
+                descripcionEditada = false;
+            }
+            generarDescripcion();
+        };
+
+        element.addEventListener("input", refreshDescription);
+        if (element.tagName === "SELECT") {
+            element.addEventListener("change", refreshDescription);
+        }
+    });
+
+    stepTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+            if (tab.dataset.stepTarget === "propietario" && !validateInmuebleStep()) {
+                return;
+            }
+            activateStep(tab.dataset.stepTarget);
+        });
+    });
+
+    goOwnerStep.addEventListener("click", () => {
+        if (!validateInmuebleStep()) {
+            return;
+        }
+        activateStep("propietario");
+    });
+
+    tipoNegocio.addEventListener("change", () => {
+        toggleDescripcion();
+        generarDescripcion(true);
+    });
+
+    tipo.addEventListener("change", actualizarCampos);
+    actualizarCampos();
+
+    percentageInputs.forEach((input) => {
+        input.addEventListener("input", () => {
+            input.value = normalizePercentageValue(input.value);
+        });
+
+        input.addEventListener("blur", () => {
+            const cleanValue = normalizePercentageValue(input.value);
+            input.value = cleanValue ? `${cleanValue}%` : "";
+        });
+
+        input.addEventListener("focus", () => {
+            input.value = normalizePercentageValue(input.value);
+        });
+
+        input.dispatchEvent(new Event("blur"));
+    });
+
+    imageInput.addEventListener("change", () => {
+        selectedFiles = [...selectedFiles, ...Array.from(imageInput.files)];
+        syncFileInput();
+        renderImagePreviews();
+    });
+
+    toggleDescripcion();
+    if (!descGroup.hidden && descTextarea.value.trim().length === 0) {
+        generarDescripcion(true);
+    }
+    activateStep("inmueble");
+});
+</script>
+{% endblock %}

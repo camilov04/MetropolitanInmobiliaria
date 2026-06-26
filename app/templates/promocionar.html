@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="promo-container promo-shell">
+
+    <div class="section-heading promo-heading">
+        <span class="section-kicker">Impulsa tu publicación</span>
+        <h2>Promocionar inmueble</h2>
+        <p class="section-copy">Elige el nivel de visibilidad que mejor encaja con tu objetivo comercial.</p>
+    </div>
+
+    <div class="promo-summary">
+        <div class="promo-summary__info">
+            <p><b>Título:</b> {{ data.titulo }}</p>
+            <p><b>Descripción:</b> {{ data.descripcion }}</p>
+        </div>
+    </div>
+
+    <h3 class="promo-gallery-title">Imágenes</h3>
+
+    <div class="preview-imagenes">
+        {% for img in imagenes %}
+            <img src="{{ img }}" class="promo-preview-image">
+        {% endfor %}
+    </div>
+
+    <div class="planes">
+
+        <!-- DESTACADO -->
+        <div class="plan-card promo-plan-card">
+
+            <h3>⭐ Destacado</h3>
+            <p class="plan-precio">$30.000 / 30 días</p>
+            <p class="promo-plan-copy">Ideal para resaltar tu inmueble y darle visibilidad inmediata dentro del catálogo.</p>
+
+            <ul class="promo-plan-list">
+                <li>✔ Tu inmueble en los primeros puestos</li>
+                <li>✔ Mayor visibilidad</li>
+            </ul>
+
+            <form method="POST" action="{{ url_for('confirmar_envio') }}">
+                <input type="hidden" name="plan" value="Destacado">
+                <button type="submit" class="btn-plan" data-confirm="¿Confirmar este plan?" data-confirm-title="Seleccionar plan destacado">
+                    Seleccionar
+                </button>
+            </form>
+
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="plan-card premium promo-plan-card promo-plan-card--premium">
+
+            <h3>👑 Premium</h3>
+            <p class="plan-precio">$60.000 / 30 días</p>
+            <p class="promo-plan-copy">La opción más fuerte si buscas destacar visualmente y atraer más atención desde el primer vistazo.</p>
+
+            <ul class="promo-plan-list">
+                <li>✔ Badge dorado</li>
+                <li>✔ Máxima prioridad</li>
+                <li>✔ Visual VIP</li>
+            </ul>
+
+            <form method="POST" action="{{ url_for('confirmar_envio') }}">
+                <input type="hidden" name="plan" value="Premium">
+                <button type="submit" class="btn-plan premium-btn" data-confirm="¿Confirmar este plan?" data-confirm-title="Seleccionar plan premium">
+                    Seleccionar
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

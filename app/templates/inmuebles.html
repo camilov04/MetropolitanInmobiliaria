@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% set municipio_actual = request.args.get('municipio', '') %}
+{% set tipo_actual = request.args.get('tipo', '') %}
+{% set negocio_actual = request.args.get('tipo_negocio', '') %}
+{% set orden_actual = request.args.get('orden', '') %}
+{% set filtros_activos = namespace(total=0) %}
+{% if municipio_actual %}{% set filtros_activos.total = filtros_activos.total + 1 %}{% endif %}
+{% if tipo_actual %}{% set filtros_activos.total = filtros_activos.total + 1 %}{% endif %}
+{% if negocio_actual %}{% set filtros_activos.total = filtros_activos.total + 1 %}{% endif %}
+{% if orden_actual %}{% set filtros_activos.total = filtros_activos.total + 1 %}{% endif %}
+{% if pagination.total %}
+    {% set rango_inicio = ((pagination.page - 1) * pagination.per_page) + 1 %}
+    {% set rango_fin = rango_inicio + (inmuebles|length) - 1 %}
+{% else %}
+    {% set rango_inicio = 0 %}
+    {% set rango_fin = 0 %}
+{% endif %}
+
+<section class="page-hero listing-hero">
+    <span class="section-kicker">Catálogo inmobiliario</span>
+    <h1 class="page-title">Inmuebles disponibles</h1>
+    <p class="page-copy">Explora propiedades con una vista más limpia, mejor comparación visual y filtros rápidos.</p>
+</section>
+
+<section class="listing-shell">
+
+    <div class="search-mobile-bar">
+        <button type="button" class="mobile-filter-trigger{% if filtros_activos.total %} is-active{% endif %}" data-search-open="listingSearchPanel">
+            <span>Filtrar inmuebles</span>
+            {% if filtros_activos.total %}
+            <span class="mobile-filter-trigger__count">{{ filtros_activos.total }}</span>
+            {% endif %}
+        </button>
+        {% if pagination.pages > 1 %}
+        <div class="search-mobile-bar__meta">
+            <strong>Página {{ pagination.page }}</strong>
+            <span>de {{ pagination.pages }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="search-panel" id="listingSearchPanel">
+        <div class="search-panel__backdrop" data-search-close></div>
+        <div class="search-panel__sheet">
+            <div class="search-panel__header">
+                <div>
+                    <span class="search-panel__eyebrow">Filtros</span>
+                    <h3>Refina tu búsqueda</h3>
+                </div>
+                <button type="button" class="search-panel__close" data-search-close aria-label="Cerrar filtros">✕</button>
+            </div>
+
+    <form class="search-form search-form-premium" method="GET">
+        <div class="search-field">
+            <span class="search-field__label">Municipio</span>
+            <select name="municipio">
+                <option value="" {% if request.args.get('municipio', '') == '' %}selected{% endif %}>Selecciona un municipio</option>
+                {% for m in municipios %}
+                    <option value="{{ m }}" {% if request.args.get('municipio', '') == m %}selected{% endif %}>
+                        {{ m }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="search-field">
+            <span class="search-field__label">Tipo de inmueble</span>
+            <select name="tipo">
+                <option value="" {% if request.args.get('tipo', '') == '' %}selected{% endif %}>Selecciona un tipo</option>
+                <option value="Casa" {% if request.args.get('tipo') == 'Casa' %}selected{% endif %}>Casa</option>
+                <option value="Apartamento" {% if request.args.get('tipo') == 'Apartamento' %}selected{% endif %}>Apartamento</option>
+                <option value="Oficina" {% if request.args.get('tipo') == 'Oficina' %}selected{% endif %}>Oficina</option>
+                <option value="Lote" {% if request.args.get('tipo') == 'Lote' %}selected{% endif %}>Lote</option>
+            </select>
+        </div>
+
+        <div class="search-field">
+            <span class="search-field__label">Negocio</span>
+            <select name="tipo_negocio">
+                <option value="" {% if request.args.get('tipo_negocio', '') == '' %}selected{% endif %}>Venta o arriendo</option>
+                <option value="Venta" {% if request.args.get('tipo_negocio') == 'Venta' %}selected{% endif %}>Venta</option>
+                <option value="Arriendo" {% if request.args.get('tipo_negocio') == 'Arriendo' %}selected{% endif %}>Arriendo</option>
+            </select>
+        </div>
+
+        <div class="search-field">
+            <span class="search-field__label">Orden</span>
+            <select name="orden">
+                <option value="" {% if request.args.get('orden', '') == '' %}selected{% endif %}>Ordenar resultados</option>
+                <option value="precio_asc" {% if request.args.get('orden') == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+                <option value="precio_desc" {% if request.args.get('orden') == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+            </select>
+        </div>
+
+        <div class="search-actions">
+            <button type="submit">Filtrar</button>
+            <a href="{{ url_for('mostrar_inmuebles') }}" class="btn-clear">Limpiar filtro</a>
+        </div>
+    </form>
+
+        </div>
+    </div>
+
+    <div class="results-bar">
+        <div class="results-bar__summary">
+            <span class="results-bar__eyebrow">Explorando catálogo</span>
+            {% if pagination.total %}
+            <strong>Mostrando {{ rango_inicio }}-{{ rango_fin }} de {{ pagination.total }} inmuebles</strong>
+            {% else %}
+            <strong>0 resultados disponibles</strong>
+            {% endif %}
+        </div>
+        <div class="results-hint">
+            {% if filtros_activos.total %}
+            {{ filtros_activos.total }} filtro{% if filtros_activos.total != 1 %}s{% endif %} activo{% if filtros_activos.total != 1 %}s{% endif %}
+            {% else %}
+            Usa los filtros para ajustar municipio, tipo o negocio.
+            {% endif %}
+        </div>
+    </div>
+
+    {% if filtros_activos.total %}
+    <div class="active-filters" aria-label="Filtros activos">
+        {% if municipio_actual %}
+        <span class="active-filters__chip">Municipio: {{ municipio_actual }}</span>
+        {% endif %}
+        {% if tipo_actual %}
+        <span class="active-filters__chip">Tipo: {{ tipo_actual }}</span>
+        {% endif %}
+        {% if negocio_actual %}
+        <span class="active-filters__chip">Negocio: {{ negocio_actual }}</span>
+        {% endif %}
+        {% if orden_actual %}
+        <span class="active-filters__chip">Orden: {% if orden_actual == 'precio_asc' %}Menor precio{% elif orden_actual == 'precio_desc' %}Mayor precio{% else %}{{ orden_actual }}{% endif %}</span>
+        {% endif %}
+        <a href="{{ url_for('mostrar_inmuebles') }}" class="active-filters__clear">Limpiar filtros</a>
+    </div>
+    {% endif %}
+
+    <div class="listado">
+        {% for i in inmuebles %}
+        <a href="{{ url_for('detalle_inmueble', inmueble_id=i.id) }}" class="inmueble-link">
+            <div class="inmueble-card property-card">
+                {% if i.imagenes %}
+                <div class="property-card__media">
+                    <img src="{{ i.imagenes[0].url.replace('/upload/', '/upload/f_auto,q_auto/') }}" class="card-img property-card__img" loading="lazy">
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="property-card__meta">
+                        <span class="property-pill">{{ i.tipo_negocio }}</span>
+                        {% if i.plan_activo %}
+                            <span class="property-pill property-pill--accent">{{ i.plan|capitalize }}</span>
+                        {% endif %}
+                    </div>
+                    <h3 class="property-card__title">{{ i.titulo }}</h3>
+                    <p class="property-card__location">{{ i.municipio }} · {{ i.tipo }}</p>
+                    <div class="datos-clave">
+    <div class="dato precio">
+        ${{ "{:,.0f}".format(i.precio) }}
+    </div>
+
+{% if i.habitaciones %}
+<div class="dato">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABbElEQVR4nO2WzUrDQBCA5+Qz+PNG6rXQHcGnaPVuxZ+nUJipB5/BCEJ3oHdfQe9WD3qqTJJCjCaxINldnA8GwibMzpfZSQtgGIZhGAbA4+1gw5O7FHbPQvgkjOe6BqkhhBfCuKyGJ3cGqSHaiZqIrkFqyDeJIiA1xEQiQ0wkMuQ/iXjGfWHMPLs3IXzNr2m4V8vjm3L9edAPNXSJeMbT5oRu0pWnhzjpFCk7oW/g3TOOHuhgS0PIjXWt+BdQvJU+j+TsZrjtp3jsCT90z9nU7baKCLn7vFjGUT2ZMB6Vz2Z9i6xQmWJfd9chkp/F5fxqsAk1dK1MsgglMq/W0CrCbqHXepzqSeT6cKfolnsJJfJl33YRzMqhHkNjW8MdrV+L6CCvhl1nQoesPmghhn1tkfxBcpN1Pr8Qq0ilM1k+/M0/iHGKSGIBoQswETYRjDogdAEmwiaCUQc03ogUMZHIEBOJDEmsXsMwDAOS4BMa8nGE0MQGHQAAAABJRU5ErkJggg==" alt="occupied-bed" class="icono">
+    <span>{{ i.habitaciones }}</span></div>
+{% endif %}
+
+{% if i.banos %}
+<div class="dato">
+<img src="data:image/png;base64,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" alt="toilet-bowl" class="icono">    <span>{{ i.banos }}</span>
+</div>
+{% endif %}
+
+{% if i.parqueadero %}
+<div class="dato">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABoUlEQVR4nO3WvS8EURAA8PUVEoVClBpRKND4A04lp1Rc3MweOo3Cn0ChULpCoRI774hNJCqdXHJn5hAShUKhotGQKIQCK8/HOWfX7t3ebSE3yTT7Mvm9Nztvs4bRiAAhCodYwanOwmZy2IgixIJpVvAgCp2PhEcmmHcco6ku4Imd6GKF299gWRLsHm1MddcUlQzEWMG1J/qZTHhzQOZYaNC2Ey1MsCiEz35oCf4qBOmTtdm2qtDjrcleUZALCrps4Cifwb6KUCFzgglvq0WLuIJ7piT4gtn1mQ7dprCgy+BZZ1aq84+TongX451bzV463q7vtShcfX+/3htgT5gJ85XCP+oVznnDkPNtuR+sp10Ibd1C/UH5eq4/IkJ4Xl7rCwaFs9lYa+lagczRktqVyGAhc+ZrjRUuRQMTXubsRE8RJtipG+w4RtNhBkc4AwN6E8U6K9UvhE91g92CrdSgKLhwq3UtqOrECwvNQrj8nh/DtM8KXryuUs3gX8Plkw24slaHyHCtjgLmAL85QZMJrwLDBYXjtcA1KlYyHhhuxL+KN6osCuai2Kc+AAAAAElFTkSuQmCC" alt="indoor-parking--v1" class="icono">
+</div>
+{% endif %}
+</div>
+
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% if inmuebles|length == 0 %}
+<section class="empty-state">
+    <h3>No encontramos inmuebles con esos filtros</h3>
+    <p>Prueba limpiando la búsqueda o cambia el municipio, el tipo o el orden para ver más resultados.</p>
+    <a href="{{ url_for('mostrar_inmuebles') }}" class="hero-btn">Ver todo el catálogo</a>
+</section>
+{% endif %}
+
+{% if pagination.pages > 1 %}
+<nav class="pagination pagination-catalog" aria-label="Paginación de inmuebles">
+    {% if pagination.has_prev %}
+        <a class="pagination__nav pagination__nav--prev" href="{{ url_for('mostrar_inmuebles', page=pagination.prev_num, municipio=request.args.get('municipio',''), tipo=request.args.get('tipo',''), tipo_negocio=request.args.get('tipo_negocio',''), orden=request.args.get('orden','')) }}">Anterior</a>
+    {% else %}
+        <span class="pagination__nav pagination__nav--prev disabled">Anterior</span>
+    {% endif %}
+
+    <div class="pagination__status" aria-live="polite">
+        <strong>Página {{ pagination.page }}</strong>
+        <span>de {{ pagination.pages }}</span>
+    </div>
+
+    <div class="pagination__pages">
+        {% for p in pagination.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+            {% if p %}
+                {% if p == pagination.page %}
+                    <span class="page active">{{ p }}</span>
+                {% else %}
+                    <a href="{{ url_for('mostrar_inmuebles', page=p, municipio=request.args.get('municipio',''), tipo=request.args.get('tipo',''), tipo_negocio=request.args.get('tipo_negocio',''), orden=request.args.get('orden','')) }}">{{ p }}</a>
+                {% endif %}
+            {% else %}
+                <span class="dots">…</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if pagination.has_next %}
+        <a class="pagination__nav pagination__nav--next" href="{{ url_for('mostrar_inmuebles', page=pagination.next_num, municipio=request.args.get('municipio',''), tipo=request.args.get('tipo',''), tipo_negocio=request.args.get('tipo_negocio',''), orden=request.args.get('orden','')) }}">Siguiente</a>
+    {% else %}
+        <span class="pagination__nav pagination__nav--next disabled">Siguiente</span>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% endblock %}
+

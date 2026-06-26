@@ -1,0 +1,2 @@
+<!-- Favicon generado automáticamente para la pestaña -->
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">

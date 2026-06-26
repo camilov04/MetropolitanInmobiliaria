@@ -1,0 +1,114 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+
+    {% if request.endpoint == 'admin_inmuebles' %}
+        <span>›</span>
+        <span>Inmuebles</span>
+    {% elif request.endpoint == 'nuevo_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Nuevo</span>
+    {% elif request.endpoint == 'editar_inmueble' %}
+        <span>›</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>›</span>
+        <span>Editar</span>
+    {% endif %}
+</nav>
+
+
+<div class="admin-dashboard">
+
+    <section class="admin-page-hero">
+        <div>
+            <span class="admin-page-kicker">Vista general</span>
+            <h2>Panel de Administración</h2>
+            <p>Supervisa el inventario actual y entra rápido a las tareas que más se repiten en el día.</p>
+        </div>
+    </section>
+
+    <section class="admin-finance-section">
+        <div class="admin-finance-section__header">
+            <span class="admin-page-kicker">Finanzas</span>
+            <h3 class="admin-section-title">Consolidado de arrendados</h3>
+            <p class="admin-section-copy">Resumen de precios en inmuebles con estado arrendado y de la comisión calculada según el porcentaje asignado a cada inmueble.</p>
+        </div>
+
+        <div class="dashboard-cards dashboard-cards--finance">
+            <div class="dash-card dash-card--finance">
+                <span class="dash-card__label">Base arrendados</span>
+                <h3>${{ "{:,.0f}".format(total_finanzas_arrendados) }}</h3>
+                <p>Suma de precios de inmuebles en estado arrendado</p>
+            </div>
+
+            <div class="dash-card dash-card--finance-accent">
+                <span class="dash-card__label">Comisión consolidada</span>
+                <h3>${{ "{:,.0f}".format(total_comision_arrendados) }}</h3>
+                <p>Total calculado según el porcentaje de comisión de los inmuebles arrendados</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="dashboard-cards dashboard-cards--overview">
+
+        <div class="dash-card dash-card--featured">
+            <span class="dash-card__label">Inventario total</span>
+            <h3>{{ total_inmuebles }}</h3>
+            <p>Total inmuebles</p>
+        </div>
+
+        <div class="dash-card">
+            <span class="dash-card__label">Disponibles</span>
+            <h3>{{ total_venta }}</h3>
+            <p>En venta</p>
+        </div>
+
+        <div class="dash-card">
+            <span class="dash-card__label">Disponibles</span>
+            <h3>{{ total_arriendo }}</h3>
+            <p>En arriendo</p>
+        </div>
+
+        <div class="dash-card">
+            <span class="dash-card__label">Pendientes</span>
+            <h3>{{ total_pendientes }}</h3>
+            <p>En proceso</p>
+        </div>
+
+        <div class="dash-card">
+            <span class="dash-card__label">Arrendados</span>
+            <h3>{{ total_arrendados }}</h3>
+            <p>Ocultos del catalogo publico</p>
+        </div>
+
+    </div>
+
+
+    <div class="admin-actions admin-actions--hero">
+        <a href="{{ url_for('admin_inmuebles') }}" class="btn-list">
+            Ver inmuebles
+        </a>
+        <a href="{{ url_for('nuevo_inmueble') }}" class="btn-add">
+            Agregar inmueble
+        </a>
+        <a href="{{ url_for('exportar_excel') }}" class="btn-secondary admin-export-link">Descargar Excel</a>
+    </div>
+
+    <section class="admin-card admin-card--soft admin-grid-2">
+        <div>
+            <h3 class="admin-section-title">Acciones rápidas</h3>
+            <p class="admin-section-copy">Usa este acceso directo para mantener al día el catálogo, crear nuevos registros y exportar la información comercial.</p>
+        </div>
+        <div class="admin-quick-list">
+            <a href="{{ url_for('admin_inmuebles') }}">Ir al inventario completo</a>
+            <a href="{{ url_for('nuevo_inmueble') }}">Registrar una nueva propiedad</a>
+            <a href="{{ url_for('exportar_excel') }}">Exportar el consolidado actual</a>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

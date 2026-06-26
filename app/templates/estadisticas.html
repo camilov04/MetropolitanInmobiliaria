@@ -1,0 +1,139 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+    <span>›</span>
+    <span>Estadísticas</span>
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Analítica</span>
+        <h2>Estadísticas de operación</h2>
+        <p>Visualiza pagos, recaudo, mora e indicadores de ingresos vs gastos.</p>
+    </div>
+</section>
+
+<section class="admin-card admin-card--soft">
+    <form id="statsFilters" class="admin-filter-form" onsubmit="return false;">
+        <div class="form-group">
+            <label>Mes</label>
+            <select id="filtroMes" name="mes">
+                {% for m in range(1, 13) %}
+                <option value="{{ m }}" {% if m == mes %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Año</label>
+            <input id="filtroAnio" type="number" name="anio" value="{{ anio }}">
+        </div>
+        <button id="btnActualizarStats" type="button" class="btn-primary">Actualizar</button>
+    </form>
+</section>
+
+<div class="stats-grid">
+    <section class="admin-card stats-card">
+        <h3>Estado de pagos (mes)</h3>
+        <canvas id="chartEstadoPagos"></canvas>
+    </section>
+
+    <section class="admin-card stats-card">
+        <h3>Total recaudado (año)</h3>
+        <canvas id="chartRecaudado"></canvas>
+    </section>
+
+    <section class="admin-card stats-card">
+        <h3>Días en mora por inquilino (mes)</h3>
+        <canvas id="chartMora"></canvas>
+    </section>
+
+    <section class="admin-card stats-card">
+        <h3>Ingresos vs gastos (mes)</h3>
+        <canvas id="chartIngresosGastos"></canvas>
+    </section>
+
+    <section class="admin-card stats-card">
+        <h3>Gastos por porcentaje (mes)</h3>
+        <canvas id="chartGastosPorcentaje"></canvas>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const charts = {};
+
+function qs(params) {
+    return new URLSearchParams(params).toString();
+}
+
+async function fetchStats(url, params = {}) {
+    const response = await fetch(`${url}?${qs(params)}`);
+    if (!response.ok) {
+        throw new Error(`Error HTTP ${response.status}`);
+    }
+    return response.json();
+}
+
+function destroyChart(key) {
+    if (charts[key]) {
+        charts[key].destroy();
+    }
+}
+
+function renderPie(canvasId, key, labels, values) {
+    destroyChart(key);
+    charts[key] = new Chart(document.getElementById(canvasId), {
+        type: 'pie',
+        data: {
+            labels,
+            datasets: [{ data: values }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+function renderBar(canvasId, key, labels, values, horizontal = false) {
+    destroyChart(key);
+    charts[key] = new Chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{ data: values }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: horizontal ? 'y' : 'x',
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+async function cargarEstadisticas() {
+    const mes = document.getElementById('filtroMes').value;
+    const anio = document.getElementById('filtroAnio').value;
+
+    try {
+        const [estadoPagos, recaudado, mora, ingresosGastos, gastosPorcentaje] = await Promise.all([
+            fetchStats('{{ url_for("api_estadisticas_estado_pagos") }}', { mes, anio }),
+            fetchStats('{{ url_for("api_estadisticas_recaudado") }}', { anio }),
+            fetchStats('{{ url_for("api_estadisticas_dias_mora") }}', { mes, anio }),
+            fetchStats('{{ url_for("api_estadisticas_ingresos_gastos") }}', { mes, anio }),
+            fetchStats('{{ url_for("api_estadisticas_gastos_porcentaje") }}', { mes, anio }),
+        ]);
+
+        renderPie('chartEstadoPagos', 'estadoPagos', estadoPagos.labels, estadoPagos.values);
+        renderBar('chartRecaudado', 'recaudado', recaudado.labels, recaudado.values);
+        renderBar('chartMora', 'mora', mora.labels, mora.values, true);
+        renderBar('chartIngresosGastos', 'ingresosGastos', ingresosGastos.labels, ingresosGastos.values);
+        renderPie('chartGastosPorcentaje', 'gastosPorcentaje', gastosPorcentaje.labels, gastosPorcentaje.values);
+    } catch (error) {
+        console.error(error);
+        alert('No se pudieron cargar las estadísticas.');
+    }
+}
+
+document.getElementById('btnActualizarStats').addEventListener('click', cargarEstadisticas);
+cargarEstadisticas();
+</script>
+{% endblock %}

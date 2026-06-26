@@ -1,0 +1,60 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+    <span>›</span>
+    <span>Facturación</span>
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Facturación</span>
+        <h2>Gestión de contratos y cobros</h2>
+        <p>Busca inmuebles por ID, nombre o dirección y administra su información de facturación.</p>
+    </div>
+</section>
+
+<section class="admin-card admin-card--soft">
+    <form method="get" action="{{ url_for('admin.facturacion') }}" class="admin-filter-form">
+        <input
+            type="text"
+            name="q"
+            placeholder="Buscar por ID, nombre o dirección"
+            value="{{ q or '' }}"
+            style="min-width: 280px;"
+        >
+        <button type="submit" class="btn-primary">Buscar</button>
+        {% if q %}
+            <a href="{{ url_for('admin.facturacion') }}" class="btn-secondary">Limpiar</a>
+        {% endif %}
+    </form>
+</section>
+
+<div class="admin-list">
+    {% if inmuebles|length == 0 %}
+        <div class="admin-empty-state">No se encontraron inmuebles para facturación.</div>
+    {% endif %}
+
+    {% for i in inmuebles %}
+    <div class="admin-item">
+        <div class="admin-thumb">
+            {% if i.imagenes|length > 0 %}
+                <img src="{{ i.imagenes[0].url }}" alt="Imagen inmueble">
+            {% else %}
+                <div class="admin-thumb__empty"></div>
+            {% endif %}
+        </div>
+        <div class="admin-info">
+            <h4><span class="admin-item__id">#{{ i.id }}</span> {{ i.titulo }}</h4>
+            <p class="muted">{{ i.tipo_negocio }} · {{ i.tipo }} · {{ i.ubicacion or 'Sin dirección' }}</p>
+            <p class="muted">Estado: {{ i.estado }}</p>
+        </div>
+        <div class="admin-item__side">
+            <a href="{{ url_for('admin.detalle_facturacion', inmueble_id=i.id) }}" class="btn-primary admin-inline-link">
+                Ver detalle de facturación
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

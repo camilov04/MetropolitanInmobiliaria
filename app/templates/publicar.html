@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="form-container">
+    <div class="top-actions">
+        <a href="{{ url_for('home') }}" class="btn-volver" data-confirm="¿Salir sin enviar?" data-confirm-title="Salir del formulario">
+            ← Volver al inicio
+        </a>
+    </div>
+
+    <div class="form-card publish-card">
+
+        <div class="publish-intro">
+            <span class="section-kicker">Solicitud de publicación</span>
+            <p>Completa la información principal de tu inmueble y nosotros te contactamos para continuar el proceso.</p>
+        </div>
+
+        <h2>Publica tu inmueble</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="form-grid">
+
+            <div class="form-group">
+                <label>Nombre completo *</label>
+                <input type="text" name="nombre" placeholder="Ej. Camilo Quintero" required>
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono *</label>
+                <input type="text" name="telefono" placeholder="Ej. 3226252318" required>
+            </div>
+
+            <div class="form-group">
+                <label>Correo *</label>
+                <input type="email" name="correo" placeholder="nombre@correo.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>Dirección exacta *</label>
+                <input type="text" name="direccion" placeholder="Barrio, conjunto o referencia" required>
+            </div>
+
+            <div class="form-group full">
+                <label>Link Google Maps (opcional)</label>
+                <input type="text" name="maps" placeholder="Pega aquí el enlace si lo tienes">
+            </div>
+
+            <div class="form-group full">
+                <label>Título del inmueble</label>
+                <input type="text" name="titulo" placeholder="Ej. Apartamento con excelente iluminación">
+            </div>
+
+            <div class="form-group full">
+                <label>Descripción</label>
+                <textarea name="descripcion" placeholder="Cuéntanos lo más importante: zona, distribución, acabados, ventajas..."></textarea>
+            </div>
+
+            <div class="form-group full">
+                <label>Fotos del inmueble</label>
+                <input type="file" name="imagenes" id="imagenesInput" multiple>
+                <small class="form-helper">Puedes seleccionar varias imágenes. Entre más claras y ordenadas, mejor será la presentación.</small>
+                <div id="imagenesPreview" class="upload-preview" hidden></div>
+            </div>
+
+            <div class="form-group full">
+                <button type="submit" id="btnEnviar" class="btn-submit">Enviar solicitud</button>
+            </div>
+
+            <input type="hidden" name="plan_seleccionado" id="planSeleccionado">
+            <div id="modalPlan" class="modal">
+                <div class="modal-content">
+                    <button type="button" class="modal-close" id="cerrarModal">✕</button>
+                    <h3>¿Deseas promocionar tu inmueble?</h3>
+
+                    <div class="modal-actions">
+                        <button type="button" id="noPromo" background="red">Enviar solicitud</button>
+                        <button type="button" id="siPromo">Sí, promocionar</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            const form = document.querySelector("form");
+            const btnEnviar = document.getElementById("btnEnviar");
+
+            const modal = document.getElementById("modalPlan");
+            const noBtn = document.getElementById("noPromo");
+            const siBtn = document.getElementById("siPromo");
+
+            const planInput = document.getElementById("planSeleccionado");
+
+            //Guardado temporal formulario
+            siBtn.onclick = () => {
+
+            const formData = new FormData(form);
+
+            fetch("/guardar_temp", {
+                method: "POST",
+                body: formData
+            }).then(() => {
+                window.location.href = "/promocionar";
+            });
+
+        };
+
+            // Interceptar envío
+            btnEnviar.addEventListener("click", function(e){
+                e.preventDefault();
+                modal.style.display = "flex";
+            });
+
+            // NO promocionar
+            noBtn.onclick = () => {
+                planInput.value = "ninguno";
+                form.submit();
+            };
+            const cerrarModal = document.getElementById("cerrarModal");
+
+            // Cerrar con X
+            cerrarModal.onclick = () => {
+                modal.style.display = "none";
+            };
+
+            // Cerrar haciendo clic fuera del modal
+            modal.onclick = (e) => {
+                if(e.target === modal){
+                    modal.style.display = "none";
+                }
+            };
+
+            //Resetear cerrar
+            cerrarModal.onclick = () => {
+                modal.style.display = "none";
+                planInput.value = "";
+            };
+
+            const imagenesInput = document.getElementById("imagenesInput");
+            const imagenesPreview = document.getElementById("imagenesPreview");
+
+            imagenesInput?.addEventListener("change", () => {
+                const files = Array.from(imagenesInput.files || []);
+                imagenesPreview.innerHTML = "";
+
+                if (!files.length) {
+                    imagenesPreview.hidden = true;
+                    return;
+                }
+
+                imagenesPreview.hidden = false;
+
+                files.slice(0, 6).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const card = document.createElement("div");
+                        card.className = "upload-preview__item";
+                        card.innerHTML = `<img src="${event.target.result}" alt="Vista previa"><span>${file.name}</span>`;
+                        imagenesPreview.appendChild(card);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            </script>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endblock %}

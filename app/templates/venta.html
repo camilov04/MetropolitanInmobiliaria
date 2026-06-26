@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="top-actions">
+    <a href="{{ url_for('home') }}" class="btn-volver">
+        ← Volver al inicio
+    </a>
+</div>
+
+<section class="info-section" style="max-width:600px;margin:40px auto 0 auto;text-align:center;">
+    <h2>Inquilinos</h2>
+    <p style="margin-bottom:18px;">
+        🏠 <strong>Requisitos para arrendar un inmueble</strong>
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        Encuentra tu próximo hogar de forma fácil y segura<br>
+        En Metropolitan Inmobiliaria te acompañamos en todo el proceso para que puedas arrendar sin complicaciones.
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        📌 <strong>REQUISITOS PRINCIPALES</strong><br>
+        Para aplicar a un inmueble, es importante cumplir con lo siguiente:
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>✔ Demostrar ingresos equivalentes al doble del canon de arrendamiento</li>
+            <li>✔ Contar con un codeudor con ingresos iguales o superiores</li>
+        </ul>
+        <span class="tip-box">💡 Esto nos permite garantizar un proceso seguro para ambas partes.</span>
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        📄 <strong>DOCUMENTACIÓN NECESARIA</strong><br>
+        Para iniciar el estudio de arrendamiento:
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>📄 Fotocopia de la cédula (arrendatario y codeudor)</li>
+            <li>📄 Extractos bancarios</li>
+            <li>📄 Formulario de solicitud diligenciado</li>
+        </ul>
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        💳 <strong>PROCESO DE ARRENDAMIENTO</strong><br>
+        Una vez se valida la documentación:
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>✔ Pago del estudio de arrendamiento</li>
+            <li>✔ Firma electrónica del contrato</li>
+        </ul>
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        ⚠️ <strong>CONDICIONES IMPORTANTES</strong>
+        <ul style="margin-top:8px;margin-bottom:8px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+            <li>No contar con reportes negativos en centrales de riesgo</li>
+        </ul>
+    </p>
+    <hr style="margin:18px 0;">
+    <p style="margin-bottom:18px;">
+        🤝 <strong>ACOMPAÑAMIENTO</strong><br>
+        En Metropolitan Inmobiliaria te guiamos en cada paso para que el proceso sea claro, rápido y seguro
+    </p>
+    <div style="display:flex;gap:18px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+        <a href="{{ url_for('mostrar_inmuebles') }}" class="hero-btn">Explorar inmuebles</a>
+    </div>
+</section>
+{% endblock %}

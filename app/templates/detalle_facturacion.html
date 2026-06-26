@@ -1,0 +1,229 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">🏠 Panel</a>
+    <span>›</span>
+    <a href="{{ url_for('facturacion') }}">Facturación</a>
+    <span>›</span>
+    <span>Detalle</span>
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Detalle de facturación</span>
+        <h2>{{ inmueble.titulo }}</h2>
+        <p>ID #{{ inmueble.id }} · {{ inmueble.ubicacion or 'Sin dirección registrada' }}</p>
+    </div>
+</section>
+
+<section class="admin-card admin-card--form-wrap">
+    <h3 class="admin-section-title">Contrato de arriendo</h3>
+    <form method="POST" class="admin-form">
+        <input type="hidden" name="accion" value="guardar_contrato">
+
+        <div class="form-group">
+            <label>Incremento (%)</label>
+            <input type="number" step="0.01" name="incremento" value="{{ contrato.incremento if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Fecha inicio contrato *</label>
+            <input type="date" name="fecha_inicio_contrato" value="{{ contrato.fecha_inicio_contrato if contrato and contrato.fecha_inicio_contrato else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Vigencia contrato (meses)</label>
+            <input type="number" name="vigencia_contrato" value="{{ contrato.vigencia_contrato if contrato else 12 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Mes</label>
+            <input type="text" name="mes" value="{{ contrato.mes if contrato else '' }}" placeholder="Ej: Enero">
+        </div>
+
+        <div class="form-group">
+            <label>Fecha de pago</label>
+            <input type="date" name="fecha_pago" value="{{ contrato.fecha_pago if contrato and contrato.fecha_pago else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Fecha límite</label>
+            <input type="date" name="fecha_limite" value="{{ contrato.fecha_limite if contrato and contrato.fecha_limite else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Nombre cliente *</label>
+            <input type="text" name="nombre" value="{{ contrato.nombre if contrato else inmueble.arrendatario_nombre or '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>NIT</label>
+            <input type="text" name="nit" value="{{ contrato.nit if contrato else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Celular</label>
+            <input type="text" name="celular" value="{{ contrato.celular if contrato else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Dirección</label>
+            <input type="text" name="direccion" value="{{ contrato.direccion if contrato else inmueble.ubicacion or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Dirección 2</label>
+            <input type="text" name="direccion2" value="{{ contrato.direccion2 if contrato else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Correo</label>
+            <input type="email" name="correo" value="{{ contrato.correo if contrato else inmueble.arrendatario_correo or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Canon</label>
+            <input type="number" step="0.01" name="canon" value="{{ contrato.canon if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Estado pago inquilino</label>
+            <select name="estado_pago_inquilino">
+                {% set estado_i = contrato.estado_pago_inquilino if contrato else 'Pendiente' %}
+                <option value="Pagado" {% if estado_i == 'Pagado' %}selected{% endif %}>Pagado</option>
+                <option value="Pendiente" {% if estado_i == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Vencido" {% if estado_i == 'Vencido' %}selected{% endif %}>Vencido</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Días mora</label>
+            <input type="number" name="dias_mora" value="{{ contrato.dias_mora if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Pago</label>
+            <input type="number" step="0.01" name="pago" value="{{ contrato.pago if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Propietario</label>
+            <input type="text" name="propietario" value="{{ contrato.propietario if contrato else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Comisión</label>
+            <input type="number" step="0.01" name="comision" value="{{ contrato.comision if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Pago adicional</label>
+            <input type="number" step="0.01" name="pago_adicional" value="{{ contrato.pago_adicional if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Reintegro</label>
+            <input type="number" step="0.01" name="reintegro" value="{{ contrato.reintegro if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Pago propietario</label>
+            <input type="number" step="0.01" name="pago_propietario" value="{{ contrato.pago_propietario if contrato else 0 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Estado pago propietario</label>
+            <select name="estado_pago_propietario">
+                {% set estado_p = contrato.estado_pago_propietario if contrato else 'Pendiente' %}
+                <option value="Pagado" {% if estado_p == 'Pagado' %}selected{% endif %}>Pagado</option>
+                <option value="Pendiente" {% if estado_p == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Vencido" {% if estado_p == 'Vencido' %}selected{% endif %}>Vencido</option>
+            </select>
+        </div>
+
+        <div class="form-group full-width admin-form-actions">
+            <button type="submit" class="btn-primary">Guardar contrato</button>
+            <a href="{{ url_for('facturacion') }}" class="btn-secondary admin-link-button">Volver</a>
+        </div>
+    </form>
+</section>
+
+<section class="admin-card admin-card--soft">
+    <h3 class="admin-section-title">Registrar pago</h3>
+    <form method="POST" class="admin-form">
+        <input type="hidden" name="accion" value="registrar_pago">
+
+        <div class="form-group">
+            <label>Fecha pago *</label>
+            <input type="date" name="pago_fecha" required>
+        </div>
+
+        <div class="form-group">
+            <label>Mes *</label>
+            <input type="text" name="pago_mes" placeholder="Ej: Enero" required>
+        </div>
+
+        <div class="form-group">
+            <label>Año *</label>
+            <input type="number" name="pago_anio" value="{{ (contrato.fecha_inicio_contrato.year if contrato and contrato.fecha_inicio_contrato else '') or '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Valor pago *</label>
+            <input type="number" step="0.01" name="pago_valor" required>
+        </div>
+
+        <div class="form-group">
+            <label>Estado</label>
+            <select name="pago_estado">
+                <option value="Pagado">Pagado</option>
+                <option value="Pendiente" selected>Pendiente</option>
+                <option value="Vencido">Vencido</option>
+            </select>
+        </div>
+
+        <div class="form-group full-width">
+            <label>Observación</label>
+            <textarea name="pago_observacion" rows="3"></textarea>
+        </div>
+
+        <div class="form-group full-width admin-form-actions">
+            <button type="submit" class="btn-primary">Registrar pago</button>
+        </div>
+    </form>
+</section>
+
+<section class="admin-card admin-card--soft">
+    <h3 class="admin-section-title">Historial de pagos</h3>
+    {% if pagos|length == 0 %}
+        <div class="admin-empty-state">Aún no hay pagos registrados.</div>
+    {% else %}
+    <div style="overflow:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Mes</th>
+                    <th>Año</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    <th>Observación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagos %}
+                <tr>
+                    <td>{{ p.fecha_pago }}</td>
+                    <td>{{ p.mes_correspondiente }}</td>
+                    <td>{{ p.anio_correspondiente }}</td>
+                    <td>${{ "{:,.0f}".format(p.valor_pagado or 0) }}</td>
+                    <td>{{ p.estado }}</td>
+                    <td>{{ p.observacion or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

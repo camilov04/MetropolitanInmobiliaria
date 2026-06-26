@@ -1,0 +1,109 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">Panel</a>
+    <span>&rsaquo;</span>
+    <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+    <span>&rsaquo;</span>
+    <span>Detalle de arrendamiento</span>
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Arrendamiento</span>
+        <h2>{{ inmueble.titulo }}</h2>
+        <p>Consulta la informacion del arrendatario, las condiciones del contrato y los documentos asociados.</p>
+    </div>
+    <div class="admin-page-hero__actions">
+        <a href="{{ url_for('arrendar_inmueble', id=inmueble.id, estado='arrendado') }}" class="btn-primary">Editar arrendamiento</a>
+        <a href="{{ url_for('admin_inmuebles') }}" class="btn-secondary">Volver</a>
+    </div>
+</section>
+
+<div class="admin-grid-2">
+    <section class="admin-card admin-card--soft">
+        <h3 class="admin-section-title">Informacion arrendatario</h3>
+        <ul class="detalle-arrendamiento-list">
+            <li><strong>Nombre:</strong> {{ inmueble.arrendatario_nombre or '-' }}</li>
+            <li><strong>Tipo de documento:</strong> {{ inmueble.arrendatario_tipo_doc or '-' }}</li>
+            <li><strong>Numero de documento:</strong> {{ inmueble.arrendatario_num_doc or '-' }}</li>
+            <li><strong>Telefono:</strong> {{ inmueble.arrendatario_telefono or '-' }}</li>
+            <li><strong>Telefono adicional:</strong> {{ inmueble.arrendatario_telefono_secundario or '-' }}</li>
+            <li><strong>Correo:</strong> {{ inmueble.arrendatario_correo or '-' }}</li>
+            <li><strong>Detalle:</strong> {{ inmueble.arrendatario_descripcion or '-' }}</li>
+        </ul>
+    </section>
+
+    <section class="admin-card admin-card--soft">
+        <h3 class="admin-section-title">Informacion arrendamiento</h3>
+        <ul class="detalle-arrendamiento-list">
+            <li><strong>Inicio de contrato:</strong> {{ contrato.fecha_inicio_contrato if contrato else '-' }}</li>
+            <li><strong>Fecha de pago:</strong> {{ contrato.fecha_pago if contrato else '-' }}</li>
+            <li><strong>Fecha maxima de pago:</strong> {{ contrato.fecha_limite if contrato else '-' }}</li>
+            <li><strong>Canon:</strong> ${{ "{:,.0f}".format(contrato.canon or 0) if contrato else '-' }}</li>
+            <li><strong>Vigencia:</strong> {{ contrato.vigencia_contrato if contrato else '-' }} meses</li>
+            <li><strong>Propietario:</strong> {{ contrato.propietario if contrato else (inmueble.propietario_nombre or '-') }}</li>
+        </ul>
+    </section>
+</div>
+
+<section class="admin-card admin-card--soft">
+    <h3 class="admin-section-title">Documentos</h3>
+    {% if documentos %}
+    <div class="admin-quick-list">
+        {% for documento in documentos %}
+        <div class="admin-doc-item">
+            <div>
+                <strong>{{ documento.nombre }}</strong>
+                <p class="admin-section-copy">{{ documento.formato or documento.resource_type or 'archivo' }}</p>
+            </div>
+            <div class="admin-actions admin-actions--inline">
+                <button type="button" class="btn-secondary" data-doc-preview="{{ url_for('admin.admin_preview_documento', doc_id=documento.id) }}">Previsualizar</button>
+                <a href="{{ url_for('admin.admin_download_documento', doc_id=documento.id) }}" rel="noopener" class="btn-primary">Descargar</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="admin-empty-state">No hay documentos adjuntos.</div>
+    {% endif %}
+</section>
+
+<section class="admin-card admin-card--soft">
+    <form method="POST" class="detalle-arrendamiento-form">
+        <button type="submit" class="btn-primary">Marcar como disponible</button>
+    </form>
+</section>
+
+<div id="documentPreviewModal" class="app-dialog" hidden>
+    <div class="app-dialog__backdrop" data-doc-close></div>
+    <div class="app-dialog__panel app-dialog__panel--document">
+        <div class="admin-edit-header">
+            <h3 class="app-dialog__title">Vista previa del documento</h3>
+            <button type="button" class="app-dialog__btn app-dialog__btn--ghost" data-doc-close>Cerrar</button>
+        </div>
+        <iframe id="documentPreviewFrame" title="Vista previa de documento" class="admin-doc-preview-frame"></iframe>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("documentPreviewModal");
+    const frame = document.getElementById("documentPreviewFrame");
+
+    document.querySelectorAll("[data-doc-preview]").forEach((button) => {
+        button.addEventListener("click", () => {
+            frame.src = button.dataset.docPreview;
+            modal.hidden = false;
+        });
+    });
+
+    modal?.addEventListener("click", (event) => {
+        if (event.target.hasAttribute("data-doc-close")) {
+            modal.hidden = true;
+            frame.src = "";
+        }
+    });
+});
+</script>
+{% endblock %}

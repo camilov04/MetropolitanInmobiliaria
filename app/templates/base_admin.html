@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Grupo Inmobiliario Quintero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+
+<body id="body" class="admin-body {% if session.get('dark_mode') %}dark-mode{% endif %}">
+<div class="admin-shell">
+    <header class="admin-topbar">
+        <div class="admin-topbar__brand">
+            <button id="menuToggle" class="admin-menu-toggle" type="button" aria-label="Abrir menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="admin-topbar__logo">GIQ</div>
+            <div>
+                <h1>Panel Admin</h1>
+                <p>Operacion diaria de inmuebles, publicaciones y arrendamientos</p>
+            </div>
+        </div>
+
+        <div class="admin-topbar__actions">
+            <a href="{{ url_for('home') }}" target="_blank" class="btn-secondary admin-topbar__link">Ver sitio</a>
+            <a href="{{ url_for('logout') }}" class="btn-danger admin-topbar__link">Cerrar sesion</a>
+        </div>
+    </header>
+
+    <!-- MENÚ LATERAL DESLIZABLE -->
+    <div id="sideMenu" class="admin-side-menu">
+        <div class="admin-side-menu__backdrop" data-menu-close></div>
+        <div class="admin-side-menu__panel">
+            <div class="admin-side-menu__header">
+                <h3>Menú</h3>
+                <button class="admin-side-menu__close" data-menu-close type="button">✕</button>
+            </div>
+            <nav class="admin-side-menu__nav">
+                <a href="{{ url_for('nuevo_inmueble') }}" class="admin-side-menu__item admin-side-menu__item--primary">
+                    <span class="admin-side-menu__icon">➕</span>
+                    <span>Agregar inmueble</span>
+                </a>
+                <a href="{{ url_for('panel_admin') }}" class="admin-side-menu__item">
+                    <span class="admin-side-menu__icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('admin_inmuebles') }}" class="admin-side-menu__item">
+                    <span class="admin-side-menu__icon">🏠</span>
+                    <span>Inmuebles</span>
+                </a>
+                <a href="{{ url_for('exportar_excel') }}" class="admin-side-menu__item">
+                    <span class="admin-side-menu__icon">📥</span>
+                    <span>Descargar Excel</span>
+                </a>
+                <div class="admin-side-menu__divider"></div>
+                <a href="{{ url_for('admin.facturacion') }}" class="admin-side-menu__item">
+                    <span class="admin-side-menu__icon">💰</span>
+                    <span>Facturación</span>
+                </a>
+                <a href="{{ url_for('admin.estadisticas') }}" class="admin-side-menu__item">
+                    <span class="admin-side-menu__icon">📈</span>
+                    <span>Estadísticas</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="admin-main admin-workspace">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <section class="admin-flash-stack" aria-live="polite">
+                    {% for category, message in messages %}
+                        <div class="admin-flash admin-flash--{{ category or 'info' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<div id="appDialog" class="app-dialog" hidden>
+    <div class="app-dialog__backdrop" data-dialog-close></div>
+    <div class="app-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="appDialogTitle">
+        <div class="app-dialog__badge">Panel Admin</div>
+        <h3 id="appDialogTitle" class="app-dialog__title">Confirmar accion</h3>
+        <p id="appDialogMessage" class="app-dialog__message"></p>
+        <div class="app-dialog__actions">
+            <button type="button" id="appDialogCancel" class="app-dialog__btn app-dialog__btn--ghost">Cancelar</button>
+            <button type="button" id="appDialogConfirm" class="app-dialog__btn app-dialog__btn--primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<div id="loadingModal" class="loading-modal" hidden>
+    <div class="loading-modal__panel">
+        <span class="loader"></span>
+        <div class="loading-modal__msg">Por favor espera, procesando...</div>
+    </div>
+</div>
+
+<button id="darkToggle" class="admin-dark-toggle" type="button">🌙</button>
+
+<style>
+.loading-modal[hidden] {
+    display: none;
+}
+.loading-modal {
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.loading-modal__panel {
+    background: var(--card, #fff);
+    color: var(--text, #222);
+    padding: 2.2rem 3.2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.13);
+    text-align: center;
+    font-size: 1.25rem;
+    min-width: 260px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.loading-modal__msg {
+    margin-top: 1.2em;
+    font-size: 1.1em;
+    color: var(--text, #222);
+}
+.loader {
+    display: inline-block;
+    width: 2.5em;
+    height: 2.5em;
+    border: 4px solid #d0d0d0;
+    border-top: 4px solid #1e88e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 0.5em;
+}
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+body.dark-mode .loading-modal__panel {
+    background: var(--card, #232323);
+    color: var(--text, #eaeaea);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.33);
+}
+body.dark-mode .loading-modal__msg {
+    color: var(--text, #eaeaea);
+}
+
+/* =========================
+   MENÚ HAMBURGUESA
+========================= */
+.admin-menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 12px;
+}
+
+.admin-menu-toggle:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.admin-menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2.5px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.admin-side-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.3s, opacity 0.3s ease;
+}
+
+.admin-side-menu.is-open {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+
+.admin-side-menu__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 12, 22, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.admin-side-menu__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: min(85vw, 320px);
+    height: 100%;
+    background: linear-gradient(180deg, #ffffff 0%, #f5f8fb 100%);
+    border-right: 1px solid rgba(14, 90, 167, 0.1);
+    box-shadow: 20px 0 60px rgba(10, 35, 66, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-side-menu.is-open .admin-side-menu__panel {
+    transform: translateX(0);
+}
+
+body.dark-mode .admin-side-menu__panel {
+    background: linear-gradient(180deg, #1a1f26 0%, #141921 100%);
+    border-right-color: rgba(255,255,255,0.06);
+}
+
+.admin-side-menu__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(14, 90, 167, 0.08);
+}
+
+body.dark-mode .admin-side-menu__header {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+
+.admin-side-menu__header h3 {
+    font-size: 1.2rem;
+    color: var(--text);
+    margin: 0;
+}
+
+body.dark-mode .admin-side-menu__header h3 {
+    color: #eef3f7;
+}
+
+.admin-side-menu__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.admin-side-menu__close:hover {
+    background: rgba(14, 90, 167, 0.08);
+}
+
+body.dark-mode .admin-side-menu__close {
+    color: #eef3f7;
+    border-color: rgba(255,255,255,0.12);
+}
+
+.admin-side-menu__nav {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 14px;
+    gap: 6px;
+    overflow-y: auto;
+}
+
+.admin-side-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.admin-side-menu__item:hover {
+    background: rgba(14, 90, 167, 0.06);
+    border-color: rgba(14, 90, 167, 0.1);
+}
+
+body.dark-mode .admin-side-menu__item {
+    color: #d8e6f3;
+}
+
+body.dark-mode .admin-side-menu__item:hover {
+    background: rgba(66, 165, 245, 0.1);
+    border-color: rgba(66, 165, 245, 0.15);
+}
+
+.admin-side-menu__item--primary {
+    background: linear-gradient(135deg, #0e5aa7, #2b7acb);
+    color: #fff !important;
+    box-shadow: 0 8px 20px rgba(14, 90, 167, 0.28);
+    font-size: 1rem;
+    padding: 16px 18px;
+}
+
+.admin-side-menu__item--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(14, 90, 167, 0.35);
+    background: linear-gradient(135deg, #0d4f94, #256eb8);
+}
+
+.admin-side-menu__item--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.admin-side-menu__item--disabled small {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 6px;
+}
+
+.admin-side-menu__icon {
+    font-size: 1.3rem;
+    width: 28px;
+    text-align: center;
+}
+
+.admin-side-menu__divider {
+    height: 1px;
+    background: rgba(14, 90, 167, 0.1);
+    margin: 8px 6px;
+}
+
+body.dark-mode .admin-side-menu__divider {
+    background: rgba(255,255,255,0.06);
+}
+
+@media (max-width: 720px) {
+    .admin-menu-toggle {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+}
+</style>
+
+<script>
+const body = document.getElementById("body");
+const toggle = document.getElementById("darkToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+    body.classList.add("dark-mode");
+    toggle.textContent = "☀️";
+}
+
+toggle.addEventListener("click", () => {
+    body.classList.toggle("dark-mode");
+    localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
+    toggle.textContent = body.classList.contains("dark-mode") ? "☀️" : "🌙";
+});
+
+// ===== MENÚ LATERAL =====
+const menuToggle = document.getElementById("menuToggle");
+const sideMenu = document.getElementById("sideMenu");
+
+function openMenu() {
+    sideMenu.classList.add("is-open");
+    document.body.classList.add("dialog-open");
+}
+
+function closeMenu() {
+    sideMenu.classList.remove("is-open");
+    document.body.classList.remove("dialog-open");
+}
+
+menuToggle.addEventListener("click", openMenu);
+
+sideMenu.addEventListener("click", (e) => {
+    if (e.target.hasAttribute("data-menu-close")) {
+        closeMenu();
+    }
+});
+
+document.addEventListener("keydown", (event) => {
+    if (sideMenu.classList.contains("is-open") && event.key === "Escape") {
+        closeMenu();
+    }
+});
+
+const dialog = document.getElementById("appDialog");
+const titleEl = document.getElementById("appDialogTitle");
+const messageEl = document.getElementById("appDialogMessage");
+const cancelBtn = document.getElementById("appDialogCancel");
+const confirmBtn = document.getElementById("appDialogConfirm");
+const loadingModal = document.getElementById("loadingModal");
+let resolver = null;
+
+function closeDialog(result) {
+    dialog.hidden = true;
+    document.body.classList.remove("dialog-open");
+    if (resolver) {
+        resolver(result);
+        resolver = null;
+    }
+}
+
+window.showLoading = function () {
+    loadingModal.hidden = false;
+    document.body.classList.add("dialog-open");
+};
+
+window.hideLoading = function () {
+    loadingModal.hidden = true;
+    document.body.classList.remove("dialog-open");
+};
+
+window.appConfirm = function (message, options = {}) {
+    titleEl.textContent = options.title || "Confirmar accion";
+    messageEl.textContent = message;
+    cancelBtn.hidden = false;
+    cancelBtn.textContent = options.cancelText || "Cancelar";
+    confirmBtn.textContent = options.confirmText || "Aceptar";
+    dialog.hidden = false;
+    document.body.classList.add("dialog-open");
+    confirmBtn.focus();
+    return new Promise((resolve) => {
+        resolver = resolve;
+    });
+};
+
+window.appAlert = function (message, options = {}) {
+    titleEl.textContent = options.title || "Mensaje";
+    messageEl.textContent = message;
+    cancelBtn.hidden = true;
+    confirmBtn.textContent = options.confirmText || "Entendido";
+    dialog.hidden = false;
+    document.body.classList.add("dialog-open");
+    confirmBtn.focus();
+    return new Promise((resolve) => {
+        resolver = resolve;
+    });
+};
+
+confirmBtn.addEventListener("click", () => closeDialog(true));
+cancelBtn.addEventListener("click", () => closeDialog(false));
+dialog.addEventListener("click", (event) => {
+    if (event.target.hasAttribute("data-dialog-close")) {
+        closeDialog(false);
+    }
+});
+
+document.addEventListener("keydown", (event) => {
+    if (!dialog.hidden && event.key === "Escape") {
+        closeDialog(false);
+    }
+});
+
+document.addEventListener("submit", async (event) => {
+    const form = event.target;
+    let submitter = document.activeElement;
+
+    if (!submitter || submitter.form !== form) {
+        submitter = form.querySelector("button[type=submit][data-confirm], input[type=submit][data-confirm]");
+    }
+
+    if (submitter && submitter.dataset.confirm) {
+        if (form.dataset.dialogConfirmed === "true") {
+            return;
+        }
+
+        event.preventDefault();
+        const confirmed = await window.appConfirm(submitter.dataset.confirm, {
+            title: submitter.dataset.confirmTitle || "Confirmar accion",
+            confirmText: submitter.dataset.confirmAccept || "Aceptar",
+            cancelText: submitter.dataset.confirmCancel || "Cancelar"
+        });
+
+        if (confirmed) {
+            form.dataset.dialogConfirmed = "true";
+            window.showLoading();
+            setTimeout(() => {
+                form.submit();
+                delete form.dataset.dialogConfirmed;
+            }, 10);
+        }
+        return;
+    }
+
+    window.showLoading();
+});
+</script>
+</body>
+</html>
+

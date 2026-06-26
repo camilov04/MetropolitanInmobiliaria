@@ -1,0 +1,174 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<nav class="admin-breadcrumbs">
+    <a href="{{ url_for('panel_admin') }}">Panel</a>
+
+    {% if request.endpoint == 'admin_inmuebles' %}
+        <span>&rsaquo;</span>
+        <span>Inmuebles</span>
+    {% elif request.endpoint == 'nuevo_inmueble' %}
+        <span>&rsaquo;</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>&rsaquo;</span>
+        <span>Nuevo</span>
+    {% elif request.endpoint == 'editar_inmueble' %}
+        <span>&rsaquo;</span>
+        <a href="{{ url_for('admin_inmuebles') }}">Inmuebles</a>
+        <span>&rsaquo;</span>
+        <span>Editar</span>
+    {% endif %}
+</nav>
+
+<section class="admin-page-hero admin-page-hero--compact">
+    <div>
+        <span class="admin-page-kicker">Inventario</span>
+        <h2>Inmuebles registrados</h2>
+        <p>Administra publicaciones, disponibilidad, detalle comercial y datos internos desde una sola vista de trabajo.</p>
+    </div>
+    <div class="admin-page-hero__actions">
+        <a href="{{ url_for('nuevo_inmueble', next=request.full_path) }}" class="btn-primary">Agregar inmueble</a>
+        <a href="{{ url_for('exportar_excel') }}" class="btn-primary">Descargar Excel</a>
+        <a href="{{ url_for('panel_admin') }}" class="btn-secondary">Volver al panel</a>
+    </div>
+</section>
+
+<div class="admin-filters">
+    <a href="{{ url_for('admin_inmuebles') }}"
+       class="filter-btn {% if not solo_destacados and not estado_filtro %}active{% endif %}">
+        Todos
+    </a>
+    <a href="{{ url_for('admin_inmuebles', estado='disponible') }}"
+       class="filter-btn {% if estado_filtro == 'disponible' %}active{% endif %}">
+        Disponibles
+    </a>
+    <a href="{{ url_for('admin_inmuebles', estado='pendiente') }}"
+       class="filter-btn {% if estado_filtro == 'pendiente' %}active{% endif %}">
+        Pendientes
+    </a>
+    <a href="{{ url_for('admin_inmuebles', estado='arrendado') }}"
+       class="filter-btn {% if estado_filtro == 'arrendado' or estado_filtro == 'no_disponible' %}active{% endif %}">
+        Arrendados
+    </a>
+    <a href="{{ url_for('admin_inmuebles', destacados=1) }}"
+       class="filter-btn {% if solo_destacados %}active{% endif %}">
+        Destacados
+    </a>
+    <form method="get" action="{{ url_for('admin_inmuebles') }}" class="admin-filter-form">
+        <input type="number" name="id" placeholder="Filtrar por ID" value="{{ id_filtro or '' }}">
+        <button type="submit" class="btn-primary">Buscar</button>
+        {% if id_filtro %}
+            <a href="{{ url_for('admin_inmuebles') }}" class="btn-secondary">Limpiar</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if error_admin_inmuebles %}
+    <div class="admin-error">
+        <strong>Error al cargar inmuebles:</strong><br>
+        {{ error_admin_inmuebles }}
+    </div>
+{% endif %}
+
+<div class="admin-list">
+    {% if inmuebles|length == 0 and not error_admin_inmuebles %}
+        <div class="admin-empty-state">No hay inmuebles registrados.</div>
+    {% endif %}
+    {% for i in inmuebles %}
+    <article class="admin-item admin-item--clickable" data-href="{{ url_for('editar_inmueble', id=i.id) }}" tabindex="0" role="link" aria-label="Abrir detalle de {{ i.titulo }}">
+        <div class="admin-thumb">
+            {% if i.imagenes|length > 0 %}
+                <img src="{{ i.imagenes[0].url }}" alt="{{ i.titulo }}">
+            {% else %}
+                <div class="admin-thumb__empty"></div>
+            {% endif %}
+        </div>
+        <div class="admin-info">
+            <div class="admin-item__headline">
+                <h4 class="admin-item__title">
+                    <span class="admin-item__id">#{{ i.id }}</span> {{ i.titulo }}
+                    <span class="estado-badge estado-{{ i.estado }}">
+                        {% if i.estado == 'disponible' %}Disponible{% endif %}
+                        {% if i.estado == 'pendiente' %}Pendiente{% endif %}
+                        {% if i.estado == 'arrendado' or i.estado == 'no_disponible' %}Arrendado{% endif %}
+                    </span>
+                    {% if i.destacado %}
+                        <span class="star-badge">Destacado</span>
+                    {% endif %}
+                </h4>
+            </div>
+            <p class="muted">{{ i.tipo_negocio }} · {{ i.tipo }} · {{ i.municipio or 'Sin municipio' }}</p>
+            <div class="admin-item__meta">
+                <span>${{ "{:,.0f}".format(i.precio or 0) }}</span>
+                {% if i.habitaciones %}<span>{{ i.habitaciones }} hab</span>{% endif %}
+                {% if i.banos %}<span>{{ i.banos }} baños</span>{% endif %}
+                <span>{% if i.parqueadero %}Con parqueadero{% else %}Sin parqueadero{% endif %}</span>
+            </div>
+            <p class="admin-item__location">{{ i.ubicacion or 'Sin ubicacion registrada' }}</p>
+            {% if i.estado == 'pendiente' and i.estado_detalle %}
+                <p class="admin-item__note">{{ i.estado_detalle }}</p>
+            {% endif %}
+        </div>
+        <div class="admin-item__side">
+            <div class="admin-actions admin-actions--inline">
+                <a href="{{ url_for('editar_inmueble', id=i.id) }}" class="btn-edit" aria-label="Editar inmueble">Editar</a>
+                <form method="POST" action="{{ url_for('eliminar_inmueble', id=i.id) }}">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" class="btn-delete" data-confirm="Eliminar inmueble?" data-confirm-title="Eliminar inmueble">Eliminar</button>
+                </form>
+            </div>
+            <form method="POST" action="{{ url_for('cambiar_estado', id=i.id) }}" class="estado-form" style="margin: 8px 0;">
+                <select name="estado" onchange="this.form.submit()" class="estado-select">
+                    <option value="disponible" {% if i.estado == 'disponible' %}selected{% endif %}>Disponible</option>
+                    <option value="pendiente" {% if i.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="arrendado" {% if i.estado == 'arrendado' or i.estado == 'no_disponible' %}selected{% endif %}>Arrendado</option>
+                </select>
+            </form>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="pagination-admin">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('admin_inmuebles', page=pagination.prev_num) }}" class="page-btn">&laquo; Anterior</a>
+    {% endif %}
+    {% for p in range(1, pagination.pages + 1) %}
+        {% if p == pagination.page %}
+            <span class="page-btn active">{{ p }}</span>
+        {% else %}
+            <a href="{{ url_for('admin_inmuebles', page=p) }}" class="page-btn">{{ p }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if pagination.has_next %}
+        <a href="{{ url_for('admin_inmuebles', page=pagination.next_num) }}" class="page-btn">Siguiente &raquo;</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".admin-item--clickable").forEach((card) => {
+        const navigate = () => {
+            if (card.dataset.href) {
+                window.location.href = card.dataset.href;
+            }
+        };
+
+        card.addEventListener("click", (event) => {
+            if (event.target.closest("a, button, form, select, input, textarea, label")) {
+                return;
+            }
+            navigate();
+        });
+
+        card.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                navigate();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

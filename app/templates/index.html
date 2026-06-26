@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= HERO ================= -->
+
+<section class="hero hero-home">
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+
+        <span class="hero-tag">
+            Metropolitan Inmobiliaria
+        </span>
+
+        <h1>
+            Espacios que reflejan tu estilo de vida
+        </h1>
+
+        <p>
+            Compra, arrienda o publica con una experiencia clara, elegante y respaldada por acompañamiento experto en cada paso.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('mostrar_inmuebles') }}" class="hero-btn">
+                Explorar inmuebles
+            </a>
+            <a href="{{ url_for('publicar') }}" class="hero-btn hero-btn-secondary">
+                Publicar propiedad
+            </a>
+        </div>
+
+        <div class="hero-metrics">
+            <div class="hero-metric">
+                <strong>Atención cercana</strong>
+                <span>Asesoría comercial y acompañamiento humano.</span>
+            </div>
+            <div class="hero-metric">
+                <strong>Inmuebles verificados</strong>
+                <span>Información clara y experiencia de visita más confiable.</span>
+            </div>
+            <div class="hero-metric">
+                <strong>Proceso simple</strong>
+                <span>Menos fricción para propietarios, inquilinos y compradores.</span>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= DESTACADOS ================= -->
+{% if destacados %}
+
+<section class="destacados section-block">
+
+    <div class="section-heading">
+        <span class="section-kicker">Selección destacada</span>
+        <h2 class="section-title">Propiedades con mayor visibilidad</h2>
+        <p class="section-copy">Una selección cuidada para que encuentres opciones relevantes más rápido.</p>
+    </div>
+
+    <div class="destacados-grid">
+    {% for i in destacados %}
+    <a href="{{ url_for('detalle_inmueble', inmueble_id=i.id) }}" class="card-destacado">
+
+        <div class="card-img-container">
+            {% if i.imagenes %}
+            <img src="{{ i.imagenes[0].url }}" class="card-img">
+            {% endif %}
+        </div>
+
+        <div class="card-info">
+            <h3>{{ i.titulo }}</h3>
+            <p>{{ i.tipo_negocio }} · {{ i.tipo }}</p>
+            <strong>${{ "{:,.0f}".format(i.precio) }}</strong>
+        </div>
+
+    </a>
+    {% endfor %}
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- ================= BUSCADOR ================= -->
+
+<section class="home-search section-block">
+
+<div class="section-heading search-heading">
+    <span class="section-kicker">Búsqueda inteligente</span>
+    <h2 class="section-title">Encuentra según tu necesidad</h2>
+    <p class="section-copy">Filtra por municipio, tipo, negocio y orden para llegar a opciones más relevantes.</p>
+</div>
+
+<div class="search-mobile-bar">
+    <button type="button" class="mobile-filter-trigger" data-search-open="homeSearchPanel">
+        Abrir filtros
+    </button>
+</div>
+
+<div class="search-panel" id="homeSearchPanel">
+    <div class="search-panel__backdrop" data-search-close></div>
+    <div class="search-panel__sheet">
+        <div class="search-panel__header">
+            <div>
+                <span class="search-panel__eyebrow">Búsqueda</span>
+                <h3>Filtra inmuebles</h3>
+            </div>
+            <button type="button" class="search-panel__close" data-search-close aria-label="Cerrar filtros">✕</button>
+        </div>
+
+<form class="search-form search-form-premium" method="GET">
+        <div class="search-field">
+            <span class="search-field__label">Municipio</span>
+            <select name="municipio">
+                <option value="" {% if request.args.get('municipio', '') == '' %}selected{% endif %}>Selecciona un municipio</option>
+                {% for m in municipios %}
+                    <option value="{{ m }}" {% if request.args.get('municipio', '') == m %}selected{% endif %}>
+                        {{ m }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="search-field">
+            <span class="search-field__label">Tipo de inmueble</span>
+            <select name="tipo">
+                <option value="" {% if request.args.get('tipo', '') == '' %}selected{% endif %}>Selecciona un tipo</option>
+                <option value="Casa" {% if request.args.get('tipo') == 'Casa' %}selected{% endif %}>Casa</option>
+                <option value="Apartamento" {% if request.args.get('tipo') == 'Apartamento' %}selected{% endif %}>Apartamento</option>
+                <option value="Oficina" {% if request.args.get('tipo') == 'Oficina' %}selected{% endif %}>Oficina</option>
+                <option value="Lote" {% if request.args.get('tipo') == 'Lote' %}selected{% endif %}>Lote</option>
+            </select>
+        </div>
+
+        <div class="search-field">
+            <span class="search-field__label">Negocio</span>
+            <select name="tipo_negocio">
+                <option value="" {% if request.args.get('tipo_negocio', '') == '' %}selected{% endif %}>Venta o arriendo</option>
+                <option value="Venta" {% if request.args.get('tipo_negocio') == 'Venta' %}selected{% endif %}>Venta</option>
+                <option value="Arriendo" {% if request.args.get('tipo_negocio') == 'Arriendo' %}selected{% endif %}>Arriendo</option>
+            </select>
+        </div>
+
+        <div class="search-field">
+            <span class="search-field__label">Orden</span>
+            <select name="orden">
+                <option value="" {% if request.args.get('orden', '') == '' %}selected{% endif %}>Ordenar resultados</option>
+                <option value="precio_asc" {% if request.args.get('orden') == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+                <option value="precio_desc" {% if request.args.get('orden') == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+            </select>
+        </div>
+
+        <div class="search-actions">
+            <button type="submit">Filtrar</button>
+            <a href="{{ url_for('home') }}" class="btn-clear">Limpiar filtro</a>
+        </div>
+    </form>
+
+    </div>
+</div>
+
+</section>
+
+
+<!-- ================= BENEFICIOS ================= -->
+
+
+<section class="beneficios section-block benefits-grid">
+    <a class="beneficio btn-beneficio" href="{{ url_for('arriendo') }}">
+        <span class="benefit-icon">🏠</span>
+        <h3>Propietarios</h3>
+        <p>Te ayudamos a arrendar o vender con un proceso más ordenado y profesional.</p>
+    </a>
+    <a class="beneficio btn-beneficio" href="{{ url_for('venta') }}">
+        <span class="benefit-icon">🔑</span>
+        <h3>Inquilinos</h3>
+        <p>Requisitos claros, acompañamiento constante y una experiencia más simple.</p>
+    </a>
+    <a class="beneficio btn-beneficio" href="{{ url_for('avaluo') }}">
+        <span class="benefit-icon">📍</span>
+        <h3>Avalúo</h3>
+        <p>Conoce el valor real de tu inmueble con una presentación seria y confiable.</p>
+    </a>
+</section>
+
+
+
+
+
+{% endblock %}
