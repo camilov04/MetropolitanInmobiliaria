@@ -45,6 +45,7 @@ INMUEBLE_COLUMNS = {
     "longitud": "VARCHAR(50)",
     "comision_porcentaje": "FLOAT DEFAULT 0",
     "estado": "VARCHAR(20) DEFAULT 'disponible'",
+    "estado_detalle": "VARCHAR(50)",
     "arrendatario_nombre": "VARCHAR(120)",
     "arrendatario_tipo_doc": "VARCHAR(30)",
     "arrendatario_num_doc": "VARCHAR(50)",
