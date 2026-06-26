@@ -1,3 +1,7 @@
+from datetime import datetime
+from pathlib import Path
+import shutil
+
 from app import app
 from app.models import DocumentoArrendamiento, Imagen, Inmueble, db
 from sqlalchemy import inspect, text
@@ -23,6 +27,23 @@ def create_table_if_missing(model, table_name):
     print(f"La tabla '{table_name}' no existe. Creandola sin tocar las tablas existentes...")
     model.__table__.create(bind=db.engine, checkfirst=True)
     print(f"Tabla '{table_name}' creada correctamente.")
+
+
+def backup_sqlite_database():
+    database_path = getattr(db.engine.url, "database", None)
+    print(f"Base de datos activa: {db.engine.url}")
+
+    if db.engine.url.drivername != "sqlite" or not database_path:
+        return
+
+    db_path = Path(database_path)
+    if not db_path.exists():
+        return
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = db_path.with_name(f"{db_path.stem}.backup_{timestamp}{db_path.suffix}")
+    shutil.copy2(db_path, backup_path)
+    print(f"Backup SQLite creado: {backup_path}")
 
 
 def add_column_if_missing(table_name, column_name, sql_definition):
@@ -67,6 +88,8 @@ INMUEBLE_COLUMNS = {
 
 
 with app.app_context():
+    backup_sqlite_database()
+
     inmuebles_antes = count_rows("inmueble")
     print(f"Inmuebles antes del ajuste: {inmuebles_antes}")
 

@@ -1,13 +1,28 @@
 import os
+from pathlib import Path
 
 
 DEFAULT_PREFERRED_HOST = "www.metropolitaninmobiliaria.co"
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def build_sqlite_uri(path_value):
+    sqlite_path = Path(path_value).expanduser()
+    if not sqlite_path.is_absolute():
+        sqlite_path = BASE_DIR / sqlite_path
+
+    sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+    return f"sqlite:///{sqlite_path.as_posix()}"
 
 
 def build_database_uri():
     explicit_database_url = os.getenv("DATABASE_URL", "").strip()
     if explicit_database_url:
         return explicit_database_url
+
+    sqlite_db_path = os.getenv("SQLITE_DB_PATH", "").strip()
+    if sqlite_db_path:
+        return build_sqlite_uri(sqlite_db_path)
 
     mysql_user = os.getenv("MYSQL_USER", "").strip()
     mysql_password = os.getenv("MYSQL_PASSWORD", "").strip()
@@ -17,7 +32,7 @@ def build_database_uri():
     if all([mysql_user, mysql_password, mysql_host, mysql_database]):
         return f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}/{mysql_database}?charset=utf8mb4"
 
-    return "sqlite:///inmuebles.db"
+    return build_sqlite_uri("instance/inmuebles.db")
 
 
 def build_preferred_host():
